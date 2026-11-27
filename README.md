@@ -52,7 +52,7 @@ There is real evidence ([Cook & Maghami-Sharif 2026](https://www.ncfr.org/system
 - **Focus on a task.** The play button on a task (or "Pick from tasks" on the forge) makes it "Now doing" and sets the timer to its estimate. Each star you make then counts toward that task.
 - **Google Calendar.** See your events beside your tasks, and send planned tasks with a time to your calendar as events (length = estimate). This runs in your browser with your own Google sign-in; there is no server.
 - **Sync** of the galaxy and tasks between your phone and your computer through a private GitHub gist.
-- **Readable by default.** Text is set in Atkinson Hyperlegible, made by the Braille Institute for legibility, with its mono version for the timer. Settings > Typeface also has Book (EB Garamond) and Pixel (the full retro look).
+- **Set like a book.** Text is set in EB Garamond by default. Settings > Typeface also has Readable (Atkinson Hyperlegible, made by the Braille Institute for legibility) and Pixel (the full retro look).
 - **Works offline** after the first visit.
 
 ## Install

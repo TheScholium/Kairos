@@ -228,7 +228,7 @@ code{overflow-wrap:anywhere}
 @media(prefers-reduced-motion:reduce){#flash.go{animation-duration:2.4s}.btn:active{transform:none}}
 </style>
 </head>
-<body data-mode="focus" data-font="readable">
+<body data-mode="focus" data-font="book">
 <div id="flash"></div>
 <div id="app">
 <div class="left">
@@ -322,11 +322,11 @@ code{overflow-wrap:anywhere}
   <div id="toggles"></div>
   <span class="lbl" style="margin-top:16px">Typeface</span>
   <div class="seg seg3" id="fontSeg">
-    <button class="chip" data-font="readable" style="font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif">Readable</button>
     <button class="chip" data-font="book" style="font-family:'EB Garamond',Garamond,serif">Book</button>
+    <button class="chip" data-font="readable" style="font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif">Readable</button>
     <button class="chip" data-font="pixel" style="font-family:'Silkscreen',monospace;font-weight:400">Pixel</button>
   </div>
-  <p class="hint">Readable uses Atkinson Hyperlegible, made by the Braille Institute so that each letter is easy to tell apart. Book is Garamond, like Istari. Pixel is the full retro look.</p>
+  <p class="hint">Book (the default) is Garamond, like Istari. Readable uses Atkinson Hyperlegible, made by the Braille Institute so that each letter is easy to tell apart. Pixel is the full retro look.</p>
   <span class="lbl" style="margin-top:16px">Timer ring</span>
   <div class="seg" id="dialSeg">
     <button class="chip" data-dial="60">60-minute ring</button>
@@ -403,7 +403,7 @@ const MS={
 /* state */
 const DEF={v:2,mode:'focus',status:'idle',total:25*MIN,left:25*MIN,endAt:0,pausedAt:0,awayAt:0,seen:0,overAt:0,lostAt:0,lostMsg:'',ext:0,cur:0,
   kind:'timer',acc:0,startAt:0,began:0,final:0,dataAt:0,lastFocus:25,lastBreak:5,fired:{},task:'',taskId:null,steps:[],park:[],tasks:[],gcfg:{clientId:'',show:null,target:'primary',auto:true},stars:[],marks:[],lost:[],nextId:1,gname:'',
-  cfg:{half:true,warn:true,sound:true,loud:false,wake:true,strict:false,dial:'60',font:'readable'}};
+  cfg:{half:true,warn:true,sound:true,loud:false,wake:true,strict:false,dial:'60',font:'book'}};
 function load(){
   try{
     const raw=localStorage.getItem(KEY);
@@ -423,7 +423,8 @@ function load(){
   }catch(e){return clone(DEF)}
 }
 let S=load();
-const applyFont=()=>{document.body.dataset.font=['readable','book','pixel'].includes(S.cfg.font)?S.cfg.font:'readable'};applyFont();
+const curFont=()=>S.cfg.fontSet&&['readable','book','pixel'].includes(S.cfg.font)?S.cfg.font:'book';
+const applyFont=()=>{document.body.dataset.font=curFont()};applyFont();
 if(!Array.isArray(S.tasks))S.tasks=[];
 if(!S.gcfg)S.gcfg={clientId:'',show:null,target:'primary',auto:true};
 if(S.park&&S.park.length){for(const p of S.park){const id='t'+(p.at||Date.now()).toString(36)+Math.random().toString(36).slice(2,6),iso=new Date(p.at||Date.now()).toISOString();
@@ -725,7 +726,7 @@ const TOG=[['half','Halfway chime','Two blips at the middle of a focus block.'],
 function renderSet(){
   $('#toggles').innerHTML=TOG.map(([k,t,s])=>`<button class="sw" role="switch" aria-checked="${!!S.cfg[k]}" data-k="${k}"><div><b>${t}</b><small>${s}</small></div><span class="knob"></span></button>`).join('');
   $$('#dialSeg .chip').forEach(b=>b.classList.toggle('on',b.dataset.dial===S.cfg.dial));
-  $$('#fontSeg .chip').forEach(b=>b.classList.toggle('on',b.dataset.font===(S.cfg.font||'readable')));
+  $$('#fontSeg .chip').forEach(b=>b.classList.toggle('on',b.dataset.font===curFont()));
   const standalone=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
   $('#installNote b').textContent=standalone?'Installed.':'Install:';
   renderSync();renderGBox();
@@ -960,7 +961,7 @@ $('#galaxy').addEventListener('click',e=>{
 });
 $('#toggles').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b)return;const k=b.dataset.k;S.cfg[k]=!S.cfg[k];
   if(k==='loud')audioInit();if(k==='wake')wake(S.status==='run');save();renderSet()});
-$('#fontSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cfg.font=b.dataset.font;applyFont();save();renderSet()});
+$('#fontSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cfg.font=b.dataset.font;S.cfg.fontSet=true;applyFont();save();renderSet()});
 $('#dialSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cfg.dial=b.dataset.dial;save();renderSet()});
 let wipeArmed=false;
 $('#wipe').addEventListener('click',()=>{
