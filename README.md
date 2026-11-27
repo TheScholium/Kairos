@@ -1,6 +1,6 @@
 # Kairos
 
-A focus timer and task planner made for ADHD brains. (Or, at least, _my_ ADHD brain.) Each focus block pulls a cloud of matter into a star. When the block ends, the star ignites and joins your galaxy. The [Ephemeris](github.com/TheScholium/ephemeris) task setup is included as well: natural language task entry, a do date and a due date, recurring tasks, and even Google Calendar integration.
+A focus timer and task planner made for ADHD brains. (Or, at least, _my_ ADHD brain.) Each focus block pulls a cloud of matter into a star. When the block ends, the star ignites and joins your galaxy. The [Ephemeris](https://github.com/TheScholium/ephemeris) task setup is included as well: natural language task entry, a do date and a due date, recurring tasks, and even Google Calendar integration.
 
 Kairos currently runs as a home-screen web app on iPhone and in any browser on a computer. Using a quick token setup, galaxies can be linked across devices.
 
@@ -18,7 +18,7 @@ Kairos currently runs as a home-screen web app on iPhone and in any browser on a
 |:---:|:---:|
 | ![Zen mode: only the star and its ring, no numbers](docs/phone-zen.png) | ![Stopwatch: counts up, star type grows with time](docs/phone-stopwatch.png) |
 
-There is real evidence ([Cook & Maghami-Sharif 2026](https://www.ncfr.org/system/files/2026-06/Math%20Anxiety_Brief%202026%20%281%29.pdf), [Thomas & Karuppali 2026](https://pmc.ncbi.nlm.nih.gov/articles/PMC8733412/) to suggest that visual timers can help with time blindness and task anxiety in individuals with ADHD. Kairos is a more unique, creative take on the typical kitchen timer.
+There is real evidence ([Cook & Maghami-Sharif 2026](https://www.ncfr.org/system/files/2026-06/Math%20Anxiety_Brief%202026%20%281%29.pdf), [Thomas & Karuppali 2026](https://pmc.ncbi.nlm.nih.gov/articles/PMC8733412/)) to suggest that visual timers can help with time blindness and task anxiety in individuals with ADHD. Kairos is a more unique, creative take on the typical kitchen timer.
 
 **3-month heatmap**
 
