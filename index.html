@@ -133,6 +133,24 @@ nav button.on{color:var(--ink)}nav button.on::before{background:var(--acc);box-s
 #forge{cursor:pointer}
 .kind{max-width:300px;margin:12px auto 0}
 .sync .row{margin-top:8px}.sync .btn{flex:1}
+.heatw{margin-top:20px;width:max-content;max-width:100%}
+.hstats{font-size:14px;color:var(--dim);margin:2px 0 10px}.hstats b{color:var(--ink);font-weight:600}
+.hscroll{overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.heat{--hc:11px;display:grid;grid-auto-flow:column;grid-template-rows:14px repeat(7,var(--hc));grid-template-columns:30px;grid-auto-columns:var(--hc);gap:3px;width:max-content}
+.heat .hm{font-size:11px;line-height:14px;color:var(--dim);white-space:nowrap;overflow:visible;width:0}
+.heat .hd{font-size:10px;line-height:var(--hc);color:var(--dim);position:sticky;left:0;z-index:1;background:var(--bg);padding-right:4px}
+.heat i,.hleg i{display:block;width:var(--hc,11px);height:var(--hc,11px);background:rgba(255,255,255,.06)}
+.heat i{cursor:pointer}
+.heat i.l1,.hleg i.l1{background:color-mix(in srgb,var(--gold) 26%,#17141f)}
+.heat i.l2,.hleg i.l2{background:color-mix(in srgb,var(--gold) 50%,#17141f)}
+.heat i.l3,.hleg i.l3{background:color-mix(in srgb,var(--gold) 76%,#17141f)}
+.heat i.l4,.hleg i.l4{background:var(--gold);box-shadow:0 0 6px rgba(255,207,107,.45)}
+.heat i.hx{background:none;cursor:default}
+.heat i.td{outline:1px solid var(--ink);outline-offset:1px}
+.heat i.sel{outline:2px solid var(--mint);outline-offset:1px}
+.hleg{display:flex;align-items:center;justify-content:flex-end;gap:3px;font-size:12px;color:var(--dim);margin-top:6px}.hleg span{margin:0 4px}
+.htip{min-height:22px;font-size:14px;color:var(--dim);margin-top:4px}.htip b{color:var(--ink);font-weight:600}
+@media(min-width:900px){.heat{--hc:13px}}
 /* tasks */
 .thead{display:flex;align-items:center;gap:10px}.thead h2{flex:1}
 .gchip{border:0;background:rgba(255,255,255,.06);font:12px var(--px);color:var(--dim);min-height:40px;padding:0 12px;clip-path:var(--notch)}
@@ -244,6 +262,13 @@ code{overflow-wrap:anywhere}
     <canvas id="galaxy" class="art" role="img" aria-label="Your galaxy of finished focus blocks"></canvas>
     <div id="gempty" class="gempty">Only dust so far. Finish one block to light your first star.</div>
     <div id="gcard" class="gcard" hidden></div>
+  </div>
+  <div class="heatw">
+    <h3>Focus this year</h3>
+    <div id="hstats" class="hstats"></div>
+    <div class="hscroll" id="hscroll"><div id="heat" class="heat" role="grid" aria-label="Focus minutes per day for the last year"></div></div>
+    <div class="hleg"><span>Less</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More</span></div>
+    <div id="heatTip" class="htip">Tap a day to see its focus time.</div>
   </div>
   <div class="ginfo">
     <div>
@@ -633,7 +658,33 @@ function goals(){
   out.push(`<b>Pulsar</b>: one block of 90 minutes or more`);
   return out;
 }
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const heatLevel=m=>m<=0?0:m<45?1:m<120?2:m<240?3:4;
+let heatBy=new Map();
+function renderHeat(){
+  const el=$('#heat');if(!el)return;
+  heatBy=new Map();
+  for(const s of S.stars){const k=dayKey(s.at),o=heatBy.get(k)||{m:0,n:0};o.m+=s.m;o.n++;heatBy.set(k,o)}
+  const end=new Date();end.setHours(12,0,0,0);const tk=dayKey(end);
+  const start=new Date(end);start.setDate(start.getDate()-(7*52+end.getDay()));
+  let h='<span class="hm"></span>'+['','Mon','','Wed','','Fri',''].map(x=>`<span class="hd">${x}</span>`).join('');
+  let prevM=-1,yrMin=0,active=0,run=0,best=0;
+  for(let d=new Date(start),w=0;d<=end;w++){
+    const m=d.getMonth();h+=`<span class="hm">${w>0&&m!==prevM?MON[m]:''}</span>`;prevM=m;
+    for(let i=0;i<7;i++){
+      if(d>end)h+='<i class="hx"></i>';
+      else{const k=dayKey(d),o=heatBy.get(k),mm=o?o.m:0;
+        if(mm){yrMin+=mm;active++;run++;if(run>best)best=run}else if(k!==tk)run=0;
+        h+=`<i class="l${heatLevel(mm)}${k===tk?' td':''}" data-k="${k}" title="${esc(d.toLocaleDateString([],{month:'short',day:'numeric'}))}: ${mm?esc(fmtHM(mm)):'no focus'}"></i>`}
+      d.setDate(d.getDate()+1);
+    }
+  }
+  el.innerHTML=h;
+  $('#hstats').innerHTML=`<b>${esc(fmtHM(yrMin))}</b> of focus on <b>${active}</b> day${active===1?'':'s'}. Longest streak: <b>${best}</b> day${best===1?'':'s'}. Current: <b>${streak()}</b>.`;
+  const sc=$('#hscroll');requestAnimationFrame(()=>{sc.scrollLeft=sc.scrollWidth});
+}
 function renderGalaxy(){
+  renderHeat();
   const day=dayKey(Date.now()),today=starsOn(day),tm=minOn(day),hrs=S.stars.reduce((a,s)=>a+s.m,0)/60;
   if(document.activeElement!==$('#gname'))$('#gname').value=S.gname;
   $('#stats').innerHTML=[[S.stars.length,'stars'],[hrs<10?hrs.toFixed(1):Math.round(hrs),'hours'],[streak(),'day streak'],[fmtHM(tm).replace(' min','m').replace(' h','h'),'today']]
@@ -872,6 +923,12 @@ $('#sheetX').addEventListener('click',()=>{sheet.hidden=true});
 sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.hidden=true});
 $('#sheetForm').addEventListener('submit',e=>{e.preventDefault();if(park($('#sheetIn').value))toast('Parked in your inbox. Back to it.');$('#sheetIn').blur();sheet.hidden=true});
 $('#gname').addEventListener('input',e=>{S.gname=e.target.value;save()});
+$('#heat').addEventListener('click',e=>{
+  const c=e.target.closest('i[data-k]');if(!c)return;
+  $$('#heat i.sel').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');
+  const k=c.dataset.k,o=heatBy.get(k),[y,mo,da]=k.split('-').map(Number),lbl=new Date(y,mo-1,da).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+  $('#heatTip').innerHTML=o?`<b>${esc(lbl)}</b>: ${esc(fmtHM(o.m))} of focus in ${o.n} star${o.n>1?'s':''}`:`<b>${esc(lbl)}</b>: no focus`;
+});
 $('#galaxy').addEventListener('click',e=>{
   const cv=e.currentTarget,r=cv.getBoundingClientRect(),ax=(e.clientX-r.left)*GX.w/r.width,ay=(e.clientY-r.top)*GX.h/r.height;
   let best=null,bd=8;for(const hh of hits){const d=Math.hypot(hh.x-ax,hh.y-ay);if(d<bd){bd=d;best=hh}}
