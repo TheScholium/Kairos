@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kairos">
+<meta name="theme-color" content="#07060c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Kairos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Silkscreen&display=swap" rel="stylesheet">
+<style>
+/* VOICE: quiet, vast, a little playful; low stimulus while you work.
+   IDEA: a pixel observatory. Each focus block is a protostar; your record is a galaxy.
+   PICTURE: a gas cloud that spirals into a core and ignites; a tilted spiral galaxy of earned stars.
+   COLOUR and TYPE: deep space ground, starlight cream text, stellar gold for focus, mint for breaks; Silkscreen + Pixelify Sans.
+   LAYOUT: phone = one column + bottom keys; computer = forge panel left, galaxy fills the right. */
+:root{color-scheme:dark;--bg:#07060c;--card:rgba(255,255,255,.035);--line:rgba(241,234,216,.11);--ink:#f1ead8;--dim:#a39cb3;--faint:#615a74;
+--gold:#ffcf6b;--red:#ff6b4a;--mint:#8fe3c8;--acc:var(--gold);
+--px:'Silkscreen',ui-monospace,monospace;--tx:'Pixelify Sans',system-ui,sans-serif;
+--notch:polygon(3px 0,calc(100% - 3px) 0,calc(100% - 3px) 3px,100% 3px,100% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px),0 3px,3px 3px)}
+body[data-mode=break]{--acc:var(--mint)}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 var(--tx);overflow-x:clip;-webkit-user-select:none;user-select:none}
+input{-webkit-user-select:text;user-select:text}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px dashed var(--acc);outline-offset:3px}
+canvas.art{image-rendering:crisp-edges;image-rendering:pixelated;display:block}
+#flash{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 40%,rgba(255,240,200,.9),rgba(255,207,107,.25) 40%,transparent 75%)}
+#flash.go{animation:flash 1.6s ease-out}
+@keyframes flash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
+#app{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) calc(76px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.top{display:flex;align-items:center;gap:8px;padding:10px 0 4px}
+.brand{font:16px var(--px);flex:1}
+.tag{font:13px var(--px);min-height:44px;padding:0 10px;border:0;background:none;color:var(--acc);display:flex;align-items:center;gap:8px}
+.tag::before{content:'';width:8px;height:8px;background:var(--acc);box-shadow:0 0 10px var(--acc)}
+.count{font:14px var(--px);display:flex;align-items:center;gap:6px;color:var(--gold)}
+.view{display:none;padding:4px 0 20px}.view.on{display:block}
+.lbl{display:block;font:13px var(--px);color:var(--dim);margin-bottom:2px}
+.task input{width:100%;background:none;border:0;border-bottom:2px dashed var(--line);color:var(--ink);font:20px/1.3 var(--tx);padding:6px 0;border-radius:0}
+input::placeholder{color:#5c5570}
+.steps{list-style:none;margin:6px 0 0;padding:0}
+.steps li{display:flex;align-items:center;gap:6px;min-height:36px}
+.steps input{flex:1;background:none;border:0;color:var(--ink);font:16px var(--tx);padding:4px 0}
+.steps li.done input{color:var(--dim);text-decoration:line-through}
+.box{width:36px;height:36px;border:0;background:none;display:grid;place-items:center;padding:0;flex:none}
+.box::before{content:'';width:14px;height:14px;border:2px solid var(--dim)}
+.done .box::before{background:var(--acc);border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--bg)}
+.x{width:36px;height:36px;border:0;background:none;color:var(--faint);font:14px var(--px);flex:none}
+.link{display:block;border:0;background:none;color:var(--dim);font:13px var(--px);min-height:44px;padding:0;text-align:left}
+.link:active{color:var(--ink)}
+.forge{display:grid;place-items:center;margin-top:2px}
+.forge canvas{width:min(84vw,330px,40dvh);aspect-ratio:1}
+.readout{text-align:center}
+.time{font:clamp(50px,15vw,74px)/1 var(--px);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(255,207,107,.18)}
+.time.over{color:var(--gold)}.time.lost{color:var(--faint)}
+.ends{font:15px/1.4 var(--tx);color:var(--dim);margin:8px auto 0;min-height:42px;max-width:34ch}
+.ends b{color:var(--ink);font-weight:600}
+.presets{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+.chip{min-width:44px;height:44px;padding:0 8px;border:0;background:rgba(255,255,255,.06);font:15px var(--px);clip-path:var(--notch)}
+.chip.on{background:var(--ink);color:var(--bg)}
+.chip.adj{color:var(--dim)}
+.ctrl{display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:10px;margin-top:12px}
+.btn{height:56px;border:0;background:rgba(255,255,255,.07);font:15px var(--px);clip-path:var(--notch);padding:0 10px}
+.btn:active{transform:translateY(2px)}
+.btn.big{background:var(--acc);color:#120e06;box-shadow:inset 0 -4px 0 rgba(0,0,0,.22)}
+.btn.armed{background:var(--red);color:#120e06}
+.ctrl .btn.vis{visibility:hidden}
+.center{text-align:center;display:flex;justify-content:center;gap:22px;flex-wrap:wrap}
+h2{font:22px var(--px);margin:8px 0 4px}
+h3{font:14px var(--px);color:var(--dim);margin:22px 0 8px;font-weight:400}
+.hint{color:var(--dim);font-size:15px;margin:0 0 14px}
+.row{display:flex;gap:10px}
+.row input,.sheetbox input,.gname{flex:1;height:52px;background:rgba(255,255,255,.05);border:2px solid var(--line);color:var(--ink);font:17px var(--tx);padding:0 12px;border-radius:0;width:100%}
+.list{list-style:none;padding:0;margin:10px 0}
+.list li{display:flex;align-items:center;gap:8px;border-bottom:1px dotted var(--line);min-height:48px}
+.list li span{flex:1;padding:6px 0;overflow-wrap:anywhere}
+.list li.done span{color:var(--dim);text-decoration:line-through}
+.list small{color:var(--dim);font-size:13px;flex:none;text-align:right}
+.dot{width:8px;height:8px;flex:none;box-shadow:0 0 8px currentColor}
+.empty{color:var(--faint);font:13px var(--px);padding:14px 0}
+/* galaxy */
+.ghead{padding-top:4px}
+.gname{height:auto;border:0;background:none;padding:0;font:22px var(--px);color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:10px 0 0}
+.stat b{display:block;font:22px/1.1 var(--px);color:var(--ink)}
+.stat span{font-size:13px;color:var(--dim)}
+.gwrap{position:relative;width:100%;aspect-ratio:1/.74;max-height:58dvh;margin-top:6px}
+.gwrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.gempty{position:absolute;left:0;right:0;bottom:8%;text-align:center;color:var(--dim);font:13px var(--px);padding:0 20px}
+.gcard{position:absolute;z-index:3;background:rgba(12,10,22,.92);border:1px solid var(--line);padding:10px 12px;font-size:14px;max-width:230px;pointer-events:none;clip-path:var(--notch)}
+.gcard b{display:block;font-weight:600}.gcard small{color:var(--dim);display:block}
+.goals{list-style:none;padding:0;margin:0}
+.goals li{padding:10px 12px;background:var(--card);margin-bottom:6px;font-size:15px;color:var(--dim);clip-path:var(--notch)}
+.goals b{color:var(--ink);font-weight:600}
+.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.leg{display:flex;gap:10px;align-items:center;padding:10px;background:var(--card);clip-path:var(--notch)}
+.leg.no{opacity:.45}
+.leg b{display:block;font-weight:600;font-size:15px}.leg small{color:var(--dim);font-size:13px;display:block;line-height:1.3}
+.leg em{font:14px var(--px);font-style:normal;color:var(--gold);margin-left:auto}
+.classes{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:13px;color:var(--dim)}
+.classes span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+/* settings */
+.sw{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;text-align:left;padding:12px 0;border-bottom:1px dotted var(--line);min-height:64px}
+.sw div{flex:1}.sw b{display:block;font-weight:600}.sw small{color:var(--dim);font-size:14px}
+.knob{width:46px;height:26px;background:rgba(255,255,255,.1);position:relative;flex:none;clip-path:var(--notch)}
+.knob::after{content:'';position:absolute;top:5px;left:5px;width:16px;height:16px;background:var(--dim)}
+[aria-checked=true] .knob{background:var(--acc)}
+[aria-checked=true] .knob::after{left:25px;background:var(--bg)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 4px}
+.seg .chip{width:100%;font-size:13px}
+.note{background:var(--card);padding:14px;font-size:15px;color:var(--dim);margin-top:16px;clip-path:var(--notch)}
+.note b{color:var(--ink)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:4;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--bg);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+nav button{height:60px;border:0;background:none;font:12px var(--px);color:var(--dim);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+nav button::before{content:'';width:6px;height:6px}
+nav button.on{color:var(--ink)}nav button.on::before{background:var(--acc);box-shadow:0 0 8px var(--acc)}
+.drawerx{display:none}
+.sheet{position:fixed;inset:0;background:rgba(4,3,8,.8);display:flex;align-items:flex-end;z-index:7}
+.sheetbox{width:100%;max-width:520px;margin:0 auto;background:#0d0b16;border-top:1px solid var(--line);padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheetbox .row{margin-top:12px}.sheetbox .btn{flex:1}
+.toast{z-index:30;position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font:13px var(--px);padding:10px 14px;z-index:9;clip-path:var(--notch);max-width:92vw;text-align:center}
+.toast.big{background:var(--gold);font-size:15px;padding:14px 18px}
+#zen{position:fixed;inset:0;z-index:20;background:var(--bg);display:grid;place-items:center;cursor:pointer}
+#zen canvas{width:min(94vw,94dvh,900px);aspect-ratio:1}
+#forge{cursor:pointer}
+.kind{max-width:300px;margin:12px auto 0}
+.sync .row{margin-top:8px}.sync .btn{flex:1}
+/* computer layout */
+@media(min-width:900px){
+  #app{max-width:none;display:grid;grid-template-columns:minmax(380px,440px) minmax(0,1fr);height:100dvh;padding:0}
+  .left{overflow-y:auto;padding:16px 28px 24px;border-right:1px solid var(--line);background:var(--bg)}
+  .left .view{display:block}
+  .forge canvas{width:min(360px,44dvh)}
+  #v-galaxy{display:block;position:relative;height:100dvh;overflow-y:auto;padding:0 32px 32px}
+  .ghead{position:absolute;z-index:2;top:20px;left:24px;max-width:460px}
+  .gwrap{aspect-ratio:auto;height:78dvh;max-height:none;margin-top:0}
+  .ginfo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:28px}
+  .ginfo h3{margin-top:4px}
+  nav{z-index:7;left:auto;right:20px;top:18px;bottom:auto;display:flex;gap:6px;background:none;border:0;padding:0;-webkit-backdrop-filter:none;backdrop-filter:none}
+  nav [data-v=focus],nav [data-v=galaxy]{display:none}
+  nav button{height:44px;padding:0 14px;flex-direction:row;background:rgba(12,10,22,.75);clip-path:var(--notch)}
+  #v-park.on,#v-set.on{position:fixed;top:0;right:0;bottom:0;width:410px;z-index:6;overflow-y:auto;background:#0c0a15;border-left:1px solid var(--line);padding:76px 26px 26px}
+  .drawerx{display:block;position:absolute;top:18px;left:22px}
+  .toast{top:20px}
+}
+@media(max-height:720px) and (max-width:899px){.forge canvas{width:min(74vw,250px,36dvh)}.time{font-size:50px}}
+@media(prefers-reduced-motion:reduce){#flash.go{animation-duration:2.4s}.btn:active{transform:none}}
+</style>
+</head>
+<body data-mode="focus">
+<div id="flash"></div>
+<div id="app">
+<div class="left">
+<header class="top">
+  <span class="brand">Kairos</span>
+  <button id="modeTag" class="tag" aria-label="Switch between focus and break">Focus</button>
+  <span class="count" aria-label="Stars in your galaxy"><svg viewBox="0 0 7 7" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M3 0h1v2H3zM3 5h1v2H3zM0 3h2v1H0zM5 3h2v1H5zM2 2h3v3H2z"/></svg><span id="starCount">0</span></span>
+</header>
+<section id="v-focus" class="view on" aria-label="Forge">
+  <div class="task">
+    <label for="task" class="lbl">Now doing</label>
+    <input id="task" placeholder="One thing. Make it small." maxlength="80" autocomplete="off" enterkeyhint="done">
+    <ul id="steps" class="steps"></ul>
+    <button class="link" id="addStep">+ Add a tiny step</button>
+  </div>
+  <div class="forge"><canvas id="forge" class="art" role="img" aria-label="Visual timer: a cloud of matter that collects into a star"></canvas></div>
+  <div class="readout">
+    <div id="time" class="time">25:00</div>
+    <div id="ends" class="ends"></div>
+  </div>
+  <div id="kindSeg" class="seg kind"><button class="chip" data-kind="timer">Timer</button><button class="chip" data-kind="watch">Stopwatch</button></div>
+  <div id="presets" class="presets"></div>
+  <div class="ctrl">
+    <button id="sec1" class="btn">Stop</button>
+    <button id="main" class="btn big">Start</button>
+    <button id="sec2" class="btn">+5</button>
+  </div>
+  <div class="center">
+    <button id="just5" class="link">Stuck? Do 5 minutes</button>
+    <button id="zenBtn" class="link">Zen mode</button>
+    <button id="quickPark" class="link">Park a thought</button>
+  </div>
+</section>
+</div>
+
+<section id="v-galaxy" class="view" aria-label="Galaxy">
+  <div class="ghead">
+    <input id="gname" class="gname" maxlength="32" aria-label="Galaxy name" placeholder="Name your galaxy" enterkeyhint="done">
+    <div id="stats" class="stats"></div>
+  </div>
+  <div class="gwrap">
+    <canvas id="galaxy" class="art" role="img" aria-label="Your galaxy of finished focus blocks"></canvas>
+    <div id="gempty" class="gempty">Only dust so far. Finish one block to light your first star.</div>
+    <div id="gcard" class="gcard" hidden></div>
+  </div>
+  <div class="ginfo">
+    <div>
+      <h3>Next in your galaxy</h3>
+      <ul id="goals" class="goals"></ul>
+      <h3>Today</h3>
+      <ul id="today" class="list"></ul>
+    </div>
+    <div>
+      <h3>Landmarks</h3>
+      <div id="legend" class="legend"></div>
+      <h3>Star types (block length)</h3>
+      <div id="classes" class="classes"></div>
+    </div>
+  </div>
+</section>
+
+<section id="v-park" class="view" aria-label="Parking lot">
+  <button class="link drawerx" data-close>Close</button>
+  <h2>Parking lot</h2>
+  <p class="hint">A stray thought? Write it here and go back to the task. Do it later.</p>
+  <form id="parkForm" class="row"><input id="parkIn" placeholder="Errand, idea, worry" maxlength="140" enterkeyhint="done" aria-label="New thought"><button class="btn big">Park</button></form>
+  <ul id="parkList" class="list"></ul>
+  <button id="clearDone" class="link">Remove checked items</button>
+</section>
+
+<section id="v-set" class="view" aria-label="Settings">
+  <button class="link drawerx" data-close>Close</button>
+  <h2>Settings</h2>
+  <div class="note" style="margin:6px 0 8px"><b>The 3-minute rule.</b> During a focus block, if you leave the app (close it, change tabs, lock the phone) for 3 minutes or more, the matter drifts off and the star does not form. A pause also holds for only 3 minutes. Breaks have no limit. If you stop a timer block yourself after 5 minutes or more, you get a brown dwarf. A stopwatch block needs 5 minutes or more to form a star.</div>
+  <div id="toggles"></div>
+  <span class="lbl" style="margin-top:16px">Timer ring</span>
+  <div class="seg" id="dialSeg">
+    <button class="chip" data-dial="60">60-minute ring</button>
+    <button class="chip" data-dial="fit">Fit to block</button>
+  </div>
+  <p class="hint">With the 60-minute ring, a 10-minute block fills one sixth of the ring, so you see real time. "Fit" fills the full ring for every block.</p>
+  <h3>Sync</h3>
+  <div id="syncBox" class="sync"></div>
+  <div class="note" id="installNote"><b>Install:</b> open this page in Safari, tap Share, then Add to Home Screen. Then it opens full-screen. Keep "Keep screen awake" on: iOS stops web apps when the screen locks, and a locked screen counts as away.</div>
+  <button id="wipe" class="link" style="margin-top:14px">Erase all data</button>
+</section>
+
+<nav aria-label="Sections">
+  <button data-v="focus" class="on">Forge</button>
+  <button data-v="galaxy">Galaxy</button>
+  <button data-v="park">Park</button>
+  <button data-v="set">Set</button>
+</nav>
+</div>
+
+<div id="sheet" class="sheet" hidden>
+  <form id="sheetForm" class="sheetbox">
+    <label for="sheetIn" class="lbl">Park a thought</label>
+    <input id="sheetIn" maxlength="140" placeholder="Write it down. Let it go." enterkeyhint="done">
+    <div class="row"><button type="button" class="btn" id="sheetX">Cancel</button><button class="btn big">Park it</button></div>
+  </form>
+</div>
+<div id="zen" hidden aria-label="Zen mode. Tap to leave."></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+{
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const KEY='kairos.v2',OLD='kairos.v1',MIN=60000,GRACE=180000;
+const clone=o=>JSON.parse(JSON.stringify(o));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const fmt=ms=>{const t=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return h?`${h}:${pad(m)}:${pad(s)}`:`${pad(m)}:${pad(s)}`};
+const fmtHM=m=>{m=Math.max(0,Math.round(m));const h=Math.floor(m/60),r=m%60;return h?(r?`${h} h ${r} min`:`${h} h`):`${r} min`};
+const clock=t=>new Date(t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+const dayKey=t=>{const d=new Date(t);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const rng=seed=>{let s=seed|0;return()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}};
+const mixc=(a,b,f)=>a.map((v,i)=>Math.round(v+(b[i]-v)*f));
+const rgba=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* star classes and landmarks */
+const CLS=[
+  {k:'M',min:0,name:'M-type red dwarf',col:[255,109,77],size:1},
+  {k:'K',min:10,name:'K-type orange dwarf',col:[255,166,94],size:1.3},
+  {k:'G',min:25,name:'G-type yellow star, like the Sun',col:[255,226,143],size:1.7},
+  {k:'F',min:45,name:'F-type yellow-white star',col:[255,244,214],size:2},
+  {k:'A',min:60,name:'A-type white star',col:[232,239,255],size:2.3},
+  {k:'B',min:90,name:'B-type blue giant',col:[169,200,255],size:2.9},
+  {k:'O',min:150,name:'O-type blue supergiant',col:[140,175,255],size:3.5}];
+const BD={k:'BD',min:0,name:'Brown dwarf (stopped early)',col:[160,86,72],size:.9};
+const clsFor=m=>{let c=CLS[0];for(const x of CLS)if(m>=x.min)c=x;return c};
+const clsByK=k=>k==='BD'?BD:(CLS.find(c=>c.k===k)||CLS[0]);
+const MS={
+  comet:{name:'Comet',how:'Reach a 3-day streak'},
+  cluster:{name:'Star cluster',how:'Each 7 days of streak'},
+  quasar:{name:'Quasar',how:'Each 30 days of streak'},
+  nebula:{name:'Nebula',how:'4 h of focus in one day'},
+  remnant:{name:'Supernova remnant',how:'8 h of focus in one day'},
+  blackhole:{name:'Black hole',how:'12 h of focus in one day'},
+  pulsar:{name:'Pulsar',how:'One block of 90 min or more'}};
+
+/* state */
+const DEF={v:2,mode:'focus',status:'idle',total:25*MIN,left:25*MIN,endAt:0,pausedAt:0,awayAt:0,seen:0,overAt:0,lostAt:0,lostMsg:'',ext:0,cur:0,
+  kind:'timer',acc:0,startAt:0,began:0,final:0,dataAt:0,lastFocus:25,lastBreak:5,fired:{},task:'',steps:[],park:[],stars:[],marks:[],lost:[],nextId:1,gname:'',
+  cfg:{half:true,warn:true,sound:true,loud:false,wake:true,strict:false,dial:'60'}};
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw){const o=JSON.parse(raw),s=Object.assign(clone(DEF),o);s.cfg=Object.assign(clone(DEF.cfg),o.cfg||{});return s}
+    const s=clone(DEF),old=JSON.parse(localStorage.getItem(OLD)||'null');
+    if(old){
+      s.task=old.task||'';s.steps=old.steps||[];s.park=old.park||[];s.lastFocus=old.lastFocus||25;s.lastBreak=old.lastBreak||5;
+      for(const k of ['half','warn','sound','loud','wake','dial'])if(old.cfg&&k in old.cfg)s.cfg[k]=old.cfg[k];
+      for(const d of Object.keys(old.log||{}).sort())for(const x of old.log[d]){
+        if(x.mode!=='focus')continue;
+        if(x.full)s.stars.push({id:s.nextId++,m:x.m,at:x.at,task:x.task||'',k:clsFor(x.m).k});
+        else if(x.m>=5)s.stars.push({id:s.nextId++,m:x.m,at:x.at,task:x.task||'',k:'BD'});
+      }
+      s.left=s.total=s.lastFocus*MIN;
+    }
+    return s;
+  }catch(e){return clone(DEF)}
+}
+let S=load();
+const SYNC_KEY='kairos.sync',FIELDS=['stars','marks','lost','park','gname','task','steps','lastFocus','lastBreak','nextId'];
+let SY={token:'',gist:'',at:0,err:''};
+try{Object.assign(SY,JSON.parse(localStorage.getItem(SYNC_KEY)||'{}'))}catch(e){}
+const saveSY=()=>{try{localStorage.setItem(SYNC_KEY,JSON.stringify(SY))}catch(e){}};
+const dataOf=()=>{const o={};for(const k of FIELDS)o[k]=S[k];return o};
+let lastData=JSON.stringify(dataOf()),pushT=0;
+const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const save=()=>{const d=JSON.stringify(dataOf());if(d!==lastData){lastData=d;S.dataAt=Date.now();queuePush()}store()};
+const isWatch=()=>S.kind==='watch';
+const elapsed=()=>Math.min(12*60*MIN,(S.acc||0)+(S.status==='run'?Date.now()-S.startAt:0));
+const remaining=()=>(S.status==='run'||S.status==='over')?S.endAt-Date.now():S.left;
+const progress=()=>{if(S.status==='over')return 1;if(S.status==='idle'||S.status==='lost')return 0;if(isWatch())return 1-Math.exp(-elapsed()/(40*MIN));return Math.max(0,Math.min(1,1-remaining()/S.total))};
+const curStar=()=>S.stars.find(x=>x.id===S.cur);
+const forecast=()=>isWatch()?clsFor(Math.floor((S.status==='over'?S.final:elapsed())/MIN)):clsFor(S.ext&&curStar()?curStar().m+Math.round(S.total/MIN):Math.round(S.total/MIN));
+const starsOn=d=>S.stars.filter(s=>dayKey(s.at)===d);
+const minOn=d=>starsOn(d).reduce((a,s)=>a+s.m,0);
+function streak(){
+  const days=new Set(S.stars.map(s=>dayKey(s.at)));
+  const d=new Date();d.setHours(12,0,0,0);if(!days.has(dayKey(d)))d.setDate(d.getDate()-1);
+  let n=0;while(days.has(dayKey(d))){n++;d.setDate(d.getDate()-1)}return n;
+}
+
+/* toast */
+let toastT=0;
+function toast(msg,big){const t=$('#toast');t.textContent=msg;t.className='toast'+(big?' big':'');t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},big?3600:1900)}
+
+/* sound */
+let ac=null;
+function audioInit(){try{
+  if(navigator.audioSession)navigator.audioSession.type=S.cfg.loud?'playback':'ambient';
+  if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();
+  if(ac.state==='suspended')ac.resume();
+}catch(e){ac=null}}
+function tone(f,t0,d,type){const o=ac.createOscillator(),g=ac.createGain();o.type=type||'square';o.frequency.value=f;
+  g.gain.setValueAtTime(.09,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+d);o.connect(g);g.connect(ac.destination);o.start(t0);o.stop(t0+d+.02)}
+const SONGS={
+  start:[[392,.07],[523,.07],[659,.12]],tap:[[660,.03]],
+  half:[[784,.07],[0,.05],[784,.07]],warn:[[880,.06],[0,.05],[880,.06],[0,.05],[880,.06]],
+  ignite:[[392,.07],[523,.07],[659,.07],[784,.07],[1047,.12],[0,.06],[1319,.5]],
+  brk:[[1047,.1],[784,.1],[659,.1],[523,.36]],
+  lost:[[440,.14],[370,.14],[311,.14],[262,.5]],
+  mark:[[523,.08],[784,.08],[1047,.08],[1568,.5]]};
+function play(k){if(!S.cfg.sound)return;audioInit();if(!ac)return;let t=ac.currentTime+.02;
+  for(const[f,d]of SONGS[k]){if(f)tone(f,t,d,k==='lost'?'triangle':'square');t+=d}}
+
+/* wake lock */
+let wl=null;
+async function wake(on){try{
+  if(on&&S.cfg.wake&&!wl&&navigator.wakeLock){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}
+  else if((!on||!S.cfg.wake)&&wl){const w=wl;wl=null;await w.release()}
+}catch(e){wl=null}}
+
+/* pixel canvases */
+function Art(cv,scale){
+  const o={cv,ctx:cv.getContext('2d'),w:0,h:0};
+  o.fit=()=>{const w=Math.round(cv.clientWidth/scale),h=Math.round(cv.clientHeight/scale);
+    if(w<10||h<10)return false;if(w!==o.w||h!==o.h){o.w=cv.width=w;o.h=cv.height=h;o.fresh=true}return true};
+  return o;
+}
+const FG=Art($('#forge'),2),GX=Art($('#galaxy'),2);
+
+/* forge: protostar timer */
+const FP=(()=>{const r=rng(7),a=[];const cols=[[255,196,150],[255,150,112],[206,176,255],[150,196,255],[255,238,205]];
+  for(let i=0;i<340;i++){const d=.22+.78*Math.sqrt(r()),arm=i%2;
+    a.push({d,th:arm*Math.PI+2.4*Math.log(d)+(r()-.5)*1.2,k:r(),c:cols[Math.floor(r()*cols.length)],b:.35+.65*r(),s:r()<.1?2:1})}
+  return a})();
+let phase=0;
+function glow(g,x,y,r,c,b){
+  for(let i=5;i>=1;i--){g.fillStyle=rgba(c,b*.075*(6-i)/5);g.beginPath();g.arc(x,y,r*(1+i*.85),0,7);g.fill()}
+  g.fillStyle=rgba(mixc(c,[255,255,255],.55),Math.min(1,b+.15));g.beginPath();g.arc(x,y,Math.max(.9,r),0,7);g.fill();
+}
+function coreCol(p,target){const ember=[110,32,22],mid=[255,128,62];return p<.5?mixc(ember,mid,p/.5):mixc(mid,target,(p-.5)/.5)}
+function dialFrac(){
+  if(S.status==='lost')return 0;
+  if(isWatch()){if(S.status==='idle')return 0;const e=S.status==='over'?S.final:elapsed();return (e%(60*MIN))/(60*MIN)}
+  if(S.status==='over')return 0;
+  const max=(S.cfg.dial==='60'&&S.total<=60*MIN)?60*MIN:Math.max(S.total,MIN);
+  return Math.max(0,Math.min(1,remaining()/max));
+}
+function drawForge(t){
+  if(!FG.fit())return;
+  const g=FG.ctx,w=FG.w,h=FG.h,cx=w/2,cy=h/2,R=Math.min(w,h)/2,now=Date.now(),st=S.status,focus=S.mode==='focus';
+  g.clearRect(0,0,w,h);
+  let p=st==='lost'?(S.lostP||0):progress();const ignited=focus&&(st==='over'||(S.ext&&st!=='lost'));if(ignited)p=1;
+  const lf=st==='lost'?Math.min(1,(now-S.lostAt)/2600):0;
+  const cloudR=R*.78*(1-.45*p);
+  g.globalCompositeOperation='lighter';
+  {const hc=focus?[150,90,200]:[60,170,170],hr=focus?cloudR*1.15:R*.8,gr=g.createRadialGradient(cx,cy,0,cx,cy,hr);
+   gr.addColorStop(0,rgba(hc,.16*(1-lf)));gr.addColorStop(.6,rgba(hc,.07*(1-lf)));gr.addColorStop(1,rgba(hc,0));g.fillStyle=gr;g.beginPath();g.arc(cx,cy,hr,0,7);g.fill()}
+  for(const q of FP){
+    let a=q.th+phase*.16*Math.pow(q.d,-1.5),rr=q.d*cloudR,al=q.b*.85,c=q.c;
+    if(focus){
+      if(ignited){if(q.k<.982)continue;rr=R*(.24+.5*q.d);al=.8}
+      else if(q.k<p){const f=(p-q.k)/.015;if(f>=1)continue;rr*=1-f;a+=f*2.2;al*=1-.4*f}
+    }else{c=q.k<.5?[140,226,200]:[130,170,255];al*=.55;rr=q.d*R*.74}
+    if(lf){rr*=1+lf*1.7;al*=1-lf*.86}
+    g.fillStyle=rgba(c,al);g.fillRect(Math.round(cx+Math.cos(a)*rr),Math.round(cy+Math.sin(a)*rr),q.s,q.s);
+  }
+  if(focus){
+    const target=forecast().col,col=coreCol(p,target);
+    let cr=1+p*R*.15,b=(.22+.78*p);if(lf){cr*=1-lf*.6;b*=1-lf*.85}
+    if(st==='idle')b=.3;
+    glow(g,cx,cy,cr,lf?mixc(col,[90,80,100],lf):col,b);
+    if(ignited){
+      const L=R*.5;
+      for(let k=2;k<L;k++){const al=.75*(1-k/L);g.fillStyle=rgba(col,al);
+        g.fillRect(Math.round(cx+k),Math.round(cy),1,1);g.fillRect(Math.round(cx-k),Math.round(cy),1,1);
+        g.fillRect(Math.round(cx),Math.round(cy+k),1,1);g.fillRect(Math.round(cx),Math.round(cy-k),1,1)}
+      const e=(now-S.overAt)/1900;
+      if(st==='over'&&e<1){g.strokeStyle=rgba(col,.8*(1-e));g.lineWidth=1.5;g.beginPath();g.arc(cx,cy,R*(.15+.75*e),0,7);g.stroke()}
+    }
+  }else glow(g,cx,cy,R*.05,[190,236,255],.55);
+  g.globalCompositeOperation='source-over';
+  /* time ring: lit arc = time left, clockwise from the top */
+  const ra=R*.9,n=Math.round(2*Math.PI*ra),frac=dialFrac(),acc=focus?[255,207,107]:[143,227,200];
+  const blink=0;
+  for(let i=0;i<n;i++){const f=i/n,a=-Math.PI/2+f*2*Math.PI,x=Math.round(cx+Math.cos(a)*ra),y=Math.round(cy+Math.sin(a)*ra);
+    if(f<frac){g.fillStyle=rgba(acc,blink?.35:.95);g.fillRect(x,y,1,1)}else if(i%4===0){g.fillStyle='rgba(120,110,150,.45)';g.fillRect(x,y,1,1)}}
+  for(let i=0;i<12;i++){const a=-Math.PI/2+i*Math.PI/6,x=Math.round(cx+Math.cos(a)*(ra+3.5)),y=Math.round(cy+Math.sin(a)*(ra+3.5));
+    if(i%3===0){g.fillStyle='rgba(241,234,216,.9)';g.fillRect(x,y,1,1);g.fillStyle='rgba(241,234,216,.4)';g.fillRect(x-1,y,1,1);g.fillRect(x+1,y,1,1);g.fillRect(x,y-1,1,1);g.fillRect(x,y+1,1,1)}
+    else{g.fillStyle='rgba(241,234,216,.35)';g.fillRect(x,y,1,1)}}
+}
+
+/* galaxy */
+const ARM=2.0944,WIND=2.3;
+const GD=(()=>{const r=rng(42),dust=[],hz=[];const cols=[[170,150,255],[120,170,255],[255,150,200],[255,222,190]];
+  for(let i=0;i<1600;i++){const d=.05+.95*Math.pow(r(),.8),arm=i%3,gs=(r()+r()+r()-1.5)*.55;
+    dust.push({d,th:arm*ARM+WIND*Math.log(d/.05)+gs*(.45+d*.5),c:cols[i%5===4?3:Math.floor(r()*3)],a:.08+.3*r()})}
+  for(let i=0;i<24;i++){const d=.18+.78*r(),arm=i%3;hz.push({d,th:arm*ARM+WIND*Math.log(d/.05)+(r()-.5)*.4,c:r()<.5?[255,110,170]:[70,206,200],s:.05+.08*r()})}
+  return{dust,hz}})();
+const posCache=new Map();
+function starPos(s,i){
+  let p=posCache.get(s.id);if(p)return p;
+  const r=rng(s.id*977+13),d=i<150?Math.min(.96,.14+.82*Math.sqrt(i/150)+(r()-.5)*.08):.2+.76*r(),arm=i%3;
+  p={d,th:arm*ARM+WIND*Math.log(d/.05)+(r()-.5)*.55};posCache.set(s.id,p);return p;
+}
+function markPos(m){
+  let p=posCache.get('m'+m.id);if(p)return p;
+  const r=rng(m.id*31+7),d=.32+.58*r(),arm=Math.floor(r()*3);
+  p={d,th:arm*ARM+WIND*Math.log(d/.05)+(r()-.5)*.35};posCache.set('m'+m.id,p);return p;
+}
+let hits=[];
+function drawMark(g,m,x,y,u,t,cx,cy){
+  const r=rng(m.id*5+1);
+  if(m.type==='nebula'){for(const c of [[255,110,170],[90,200,255],[180,120,255],[255,180,120]]){
+      const ox=x+(r()-.5)*u*2.2,oy=y+(r()-.5)*u*1.4,rr=u*(1.2+r()*1.4),gr=g.createRadialGradient(ox,oy,0,ox,oy,rr);
+      gr.addColorStop(0,rgba(c,.34));gr.addColorStop(1,rgba(c,0));g.fillStyle=gr;g.fillRect(ox-rr,oy-rr,rr*2,rr*2)}}
+  else if(m.type==='remnant'){for(let i=0;i<46;i++){const a=i/46*6.283,rr=u*1.6*(1+(r()-.5)*.25);
+      g.fillStyle=rgba(i%2?[90,220,210]:[255,130,170],.55);g.fillRect(Math.round(x+Math.cos(a)*rr),Math.round(y+Math.sin(a)*rr*.85),1,1)}
+    g.fillStyle='rgba(220,235,255,.95)';g.fillRect(Math.round(x),Math.round(y),1,1)}
+  else if(m.type==='blackhole'){for(let i=0;i<70;i++){const a=i/70*6.283+t*.6,rr=u*1.5;
+      g.fillStyle=rgba(mixc([255,150,60],[255,236,180],(Math.sin(a)+1)/2),.7);g.fillRect(Math.round(x+Math.cos(a)*rr),Math.round(y+Math.sin(a)*rr*.32),1,1)}
+    g.globalCompositeOperation='source-over';g.fillStyle='#000';g.beginPath();g.arc(x,y,u*.62,0,7);g.fill();
+    g.strokeStyle='rgba(255,236,200,.55)';g.lineWidth=.8;g.beginPath();g.arc(x,y,u*.75,0,7);g.stroke();g.globalCompositeOperation='lighter'}
+  else if(m.type==='pulsar'){const a=t*2.4;for(let k=1;k<u*3;k++){const al=.5*(1-k/(u*3));g.fillStyle=rgba([170,210,255],al);
+      g.fillRect(Math.round(x+Math.cos(a)*k),Math.round(y+Math.sin(a)*k),1,1);g.fillRect(Math.round(x-Math.cos(a)*k),Math.round(y-Math.sin(a)*k),1,1)}
+    glow(g,x,y,.9,[200,225,255],.9)}
+  else if(m.type==='comet'){let dx=x-cx,dy=y-cy;const L=Math.hypot(dx,dy)||1;dx/=L;dy/=L;
+    for(let k=0;k<u*2.6;k++){g.fillStyle=rgba([180,230,255],.75*(1-k/(u*2.6)));g.fillRect(Math.round(x+dx*k),Math.round(y+dy*k),1,1)}
+    glow(g,x,y,.8,[210,240,255],.85)}
+  else if(m.type==='cluster'){for(let i=0;i<26;i++){const a=r()*6.283,rr=u*.95*Math.sqrt(r())*(r()<.5?.5:1);
+      g.fillStyle=rgba([255,236,205],.5+.4*r());g.fillRect(Math.round(x+Math.cos(a)*rr),Math.round(y+Math.sin(a)*rr),1,1)}
+    g.fillStyle='rgba(255,230,190,.12)';g.beginPath();g.arc(x,y,u*1.1,0,7);g.fill()}
+}
+function drawGalaxy(t){
+  if(!GX.fit())return;
+  const g=GX.ctx,w=GX.w,h=GX.h,cx=w/2,cy=h/2+(isWide?h*.04:0),tilt=isWide?.56:.62,Rg=Math.min(w*(isWide?.46:.49),h*.48/tilt),rot=reduced?0:t*.006;
+  const P=(d,th)=>({x:cx+Math.cos(th+rot)*d*Rg,y:cy+Math.sin(th+rot)*d*Rg*tilt});
+  g.clearRect(0,0,w,h);g.globalCompositeOperation='lighter';
+  const quas=S.marks.filter(m=>m.type==='quasar').length;
+  g.save();g.translate(cx,cy);g.scale(1,tilt);
+  const bg=g.createRadialGradient(0,0,0,0,0,Rg*.32);bg.addColorStop(0,`rgba(255,228,186,${.5+Math.min(quas,3)*.12})`);bg.addColorStop(.35,'rgba(255,190,140,.16)');bg.addColorStop(1,'rgba(255,170,120,0)');
+  g.fillStyle=bg;g.beginPath();g.arc(0,0,Rg*.32,0,7);g.fill();g.restore();
+  for(const z of GD.hz){const p=P(z.d,z.th),rr=z.s*Rg,gr=g.createRadialGradient(p.x,p.y,0,p.x,p.y,rr);gr.addColorStop(0,rgba(z.c,.09));gr.addColorStop(1,rgba(z.c,0));g.fillStyle=gr;g.fillRect(p.x-rr,p.y-rr,rr*2,rr*2)}
+  for(const q of GD.dust){const p=P(q.d,q.th);g.fillStyle=rgba(q.c,q.a);g.fillRect(Math.round(p.x),Math.round(p.y),1,1)}
+  if(quas){const L=Rg*.11*Math.min(quas+1,4);for(let k=2;k<L;k++){const al=.7*(1-k/L);g.fillStyle=rgba([160,200,255],al);g.fillRect(Math.round(cx),Math.round(cy-k),1,1);g.fillRect(Math.round(cx),Math.round(cy+k),1,1)}glow(g,cx,cy,1.4,[230,240,255],1)}
+  hits=[];const u=Math.max(3,Rg*.045);
+  for(const m of S.marks){if(m.type==='quasar'){hits.push({x:cx,y:cy,m});continue}const q=markPos(m),p=P(q.d,q.th);drawMark(g,m,p.x,p.y,u,t,cx,cy);hits.push({x:p.x,y:p.y,m})}
+  const last=S.stars.length-1;
+  S.stars.forEach((s,i)=>{
+    const q=starPos(s,i),p=P(q.d,q.th),c=clsByK(s.k),tw=reduced?1:.78+.22*Math.sin(t*(1.1+(s.id%7)*.3)+s.id),z=c.size;
+    g.fillStyle=rgba(c.col,.16*tw);g.beginPath();g.arc(p.x,p.y,z*1.9,0,7);g.fill();
+    const k=Math.max(1,Math.round(z*.7));g.fillStyle=rgba(c.col,.95*tw);g.fillRect(Math.round(p.x-k/2),Math.round(p.y-k/2),k,k);
+    if(z>=2.8){for(let j=2;j<z*2.4;j++){const al=.6*(1-j/(z*2.4));g.fillStyle=rgba(c.col,al);g.fillRect(Math.round(p.x+j),Math.round(p.y),1,1);g.fillRect(Math.round(p.x-j),Math.round(p.y),1,1);g.fillRect(Math.round(p.x),Math.round(p.y+j),1,1);g.fillRect(Math.round(p.x),Math.round(p.y-j),1,1)}}
+    if(i===last){const e=(t%2.6)/2.6;g.strokeStyle=rgba(c.col,.6*(1-e));g.lineWidth=.8;g.beginPath();g.arc(p.x,p.y,2+e*7,0,7);g.stroke()}
+    hits.push({x:p.x,y:p.y,s});
+  });
+  g.globalCompositeOperation='source-over';
+}
+
+/* render text */
+const PRE={focus:[5,15,25,45,60],break:[3,5,10,15]};
+const dot=c=>`<i class="dot" style="background:rgb(${c.col});color:rgb(${c.col})"></i>`;
+function renderTime(){
+  const st=S.status,t=$('#time'),focus=S.mode==='focus',w=isWatch(),fc=forecast();
+  t.textContent=st==='lost'?'00:00':w?fmt(st==='over'?S.final:elapsed()):(st==='over'?'+':'')+fmt(Math.abs(remaining()));
+  t.classList.toggle('over',st==='over');t.classList.toggle('lost',st==='lost');
+  const fcs=`<b style="color:rgb(${fc.col})">${fc.k}-type</b>`;
+  let e='';
+  if(st==='idle'){
+    if(w)e=focus?'Counts up with no end. Tap Done to form your star (5 minutes or more).':'Counts up. Tap Done to end the break.';
+    else e=focus?`Start now: ends at <b>${clock(Date.now()+S.left)}</b>. Forms a ${fcs} star.`:`Start now: break ends at <b>${clock(Date.now()+S.left)}</b>.`;
+  }else if(st==='run'){
+    if(w){const m=Math.floor(elapsed()/MIN),nx=CLS.find(c=>c.min>m);
+      e=!focus?`Break started at <b>${clock(S.began)}</b>.`:m<5?`Started at <b>${clock(S.began)}</b>. A star needs 5 minutes.`:`Now a ${fcs} star.`+(nx?` ${nx.k}-type at ${nx.min} min.`:'')}
+    else e=focus?(S.ext?`Feeding your star. Ends at <b>${clock(S.endAt)}</b>.`:`Ends at <b>${clock(S.endAt)}</b>. Forming a ${fcs} star.`):`Break ends at <b>${clock(S.endAt)}</b>.`;
+  }else if(st==='pause')e=focus?`Paused. The cloud drifts off in <b>${fmt(GRACE-(Date.now()-S.pausedAt))}</b>.`:(w?'Paused.':`Paused. ${fmt(S.left)} left.`);
+  else if(st==='over'){const c=curStar()?clsByK(curStar().k):fc;e=focus?`Ignition. A <b style="color:rgb(${c.col})">${esc(c.name)}</b> joins your galaxy.`:'Break is over.'}
+  else e=esc(S.lostMsg);
+  const el=$('#ends');if(el.innerHTML!==e)el.innerHTML=e;
+  const ti=(st==='run'||st==='pause'||st==='over')?`${t.textContent} · Kairos`:'Kairos';if(document.title!==ti)document.title=ti;
+}
+function renderPresets(){
+  const cur=Math.round(S.left/MIN);
+  $('#presets').innerHTML=`<button class="chip adj" data-adj="-1" aria-label="One minute less">-</button>`+
+    PRE[S.mode].map(m=>`<button class="chip${m===cur?' on':''}" data-m="${m}">${m}</button>`).join('')+
+    `<button class="chip adj" data-adj="1" aria-label="One minute more">+</button>`;
+}
+let armed=0;
+function renderCtrls(){
+  const st=S.status,idle=st==='idle',focus=S.mode==='focus',w=isWatch(),live=st==='run'||st==='pause'||st==='over';
+  document.body.dataset.mode=S.mode;
+  $('#modeTag').textContent=focus?'Focus':'Break';
+  $('#main').textContent=idle?(focus?'Start':'Start break'):st==='run'?'Pause':st==='pause'?'Resume':st==='lost'?'Try again':(focus?'Break':'Focus');
+  const s1=$('#sec1'),s2=$('#sec2');
+  s1.classList.toggle('vis',idle||st==='lost'||(st==='over'&&!focus)||(w&&st!=='over'));
+  s2.classList.toggle('vis',idle||st==='lost'||(w&&st==='over'));
+  s1.textContent=armed?'Sure?':(st==='over'?'Skip':'Stop');s1.classList.toggle('armed',!!armed);
+  s2.textContent=w?'Done':'+5';
+  $('#presets').hidden=!idle||w;$('#kindSeg').hidden=!idle;$('#just5').hidden=!(idle&&focus&&!w);
+  $('#zenBtn').hidden=!(live||st==='lost');
+  $$('#kindSeg .chip').forEach(b=>b.classList.toggle('on',b.dataset.kind===(w?'watch':'timer')));
+  $('#starCount').textContent=S.stars.length;
+  if(idle&&!w)renderPresets();
+  renderTime();
+}
+function renderSteps(){
+  $('#steps').innerHTML=S.steps.map((s,i)=>`<li class="${s.d?'done':''}"><button class="box" data-i="${i}" aria-label="Mark step done"></button><input data-i="${i}" value="${esc(s.t)}" placeholder="Tiny step" maxlength="60" enterkeyhint="done"><button class="x" data-i="${i}" aria-label="Remove step">x</button></li>`).join('');
+  $('#addStep').hidden=S.steps.length>=5;
+}
+function renderPark(){
+  $('#parkList').innerHTML=S.park.length?S.park.map((p,i)=>`<li class="${p.d?'done':''}"><button class="box" data-i="${i}" aria-label="Mark handled"></button><span>${esc(p.t)}</span><small>${esc(clock(p.at))}</small><button class="x" data-i="${i}" aria-label="Remove">x</button></li>`).join(''):`<li class="empty">Nothing parked. Clear head.</li>`;
+  $('#clearDone').hidden=!S.park.some(p=>p.d);
+}
+function goals(){
+  const out=[],day=dayKey(Date.now()),tm=minOn(day),s=streak(),done=starsOn(day).length>0;
+  for(const[t,ty]of[[240,'nebula'],[480,'remnant'],[720,'blackhole']])if(tm<t){out.push(`<b>${MS[ty].name}</b>: ${fmtHM(t-tm)} more focus today`);break}
+  if(!done&&s>0)out.push(`Finish one block today to keep your <b>${s}-day streak</b>`);
+  else{const n=s<3?3:(Math.floor(s/7)+1)*7,ty=s<3?'comet':'cluster',left=n-s;out.push(`<b>${MS[ty].name}</b>: at a ${n}-day streak (${left} more day${left>1?'s':''})`)}
+  out.push(`<b>Pulsar</b>: one block of 90 minutes or more`);
+  return out;
+}
+function renderGalaxy(){
+  const day=dayKey(Date.now()),today=starsOn(day),tm=minOn(day),hrs=S.stars.reduce((a,s)=>a+s.m,0)/60;
+  if(document.activeElement!==$('#gname'))$('#gname').value=S.gname;
+  $('#stats').innerHTML=[[S.stars.length,'stars'],[hrs<10?hrs.toFixed(1):Math.round(hrs),'hours'],[streak(),'day streak'],[fmtHM(tm).replace(' min','m').replace(' h','h'),'today']]
+    .map(([v,l])=>`<div class="stat"><b>${esc(v)}</b><span>${l}</span></div>`).join('');
+  $('#gempty').hidden=S.stars.length>0;
+  $('#goals').innerHTML=goals().map(x=>`<li>${x}</li>`).join('');
+  const lostToday=S.lost.filter(x=>dayKey(x.at)===day).length;
+  $('#today').innerHTML=(today.length?today.slice().reverse().map(s=>{const c=clsByK(s.k);return `<li>${dot(c)}<span>${esc(s.task||'Untitled block')}</span><small>${s.m} min · ${c.k}<br>${esc(clock(s.at))}</small></li>`}).join(''):`<li class="empty">No stars yet today. Try 5 minutes.</li>`)+
+    (lostToday?`<li class="empty">${lostToday} cloud${lostToday>1?'s':''} drifted off today.</li>`:'');
+  $('#legend').innerHTML=Object.entries(MS).map(([k,v])=>{const n=S.marks.filter(m=>m.type===k).length;return `<div class="leg${n?'':' no'}"><div><b>${v.name}</b><small>${v.how}</small></div><em>${n?'x'+n:''}</em></div>`}).join('');
+  $('#classes').innerHTML=CLS.map(c=>`<span>${dot(c)}${c.k} ${c.min?c.min+'+ min':'under 10 min'}</span>`).join('')+`<span>${dot(BD)}Brown dwarf: stopped early</span>`;
+}
+const TOG=[['half','Halfway chime','Two blips at the middle of a focus block.'],
+  ['warn','Five-minute warning','Three blips with 5 minutes left, so you can start to wrap up.'],
+  ['sound','Sound','All chimes on or off.'],
+  ['loud','Chime in silent mode','Chimes play when the ring switch is set to silent.'],
+  ['wake','Keep screen awake','The screen stays on while a timer runs.'],
+  ['strict','Count other windows as away','On a computer: using another app counts toward the 3 minutes, also when this window stays visible.']];
+function renderSet(){
+  $('#toggles').innerHTML=TOG.map(([k,t,s])=>`<button class="sw" role="switch" aria-checked="${!!S.cfg[k]}" data-k="${k}"><div><b>${t}</b><small>${s}</small></div><span class="knob"></span></button>`).join('');
+  $$('#dialSeg .chip').forEach(b=>b.classList.toggle('on',b.dataset.dial===S.cfg.dial));
+  const standalone=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  $('#installNote b').textContent=standalone?'Installed.':'Install:';
+  renderSync();
+}
+function renderAll(){renderCtrls();renderGalaxy()}
+
+/* galaxy logic */
+function addMark(type,day,extra){S.marks.push(Object.assign({id:S.nextId++,type,day,at:Date.now()},extra||{}));setTimeout(()=>{toast(`New in your galaxy: ${MS[type].name}`,true);play('mark')},1400)}
+function checkMarks(st){
+  const day=dayKey(st.at),tm=minOn(day),has=(ty,d)=>S.marks.some(m=>m.type===ty&&m.day===d);
+  for(const[t,ty]of[[240,'nebula'],[480,'remnant'],[720,'blackhole']])if(tm>=t&&!has(ty,day))addMark(ty,day);
+  if(st.m>=90&&!S.marks.some(m=>m.type==='pulsar'&&m.star===st.id))addMark('pulsar',day,{star:st.id,starAt:st.at});
+  const s=streak();
+  if(s===3&&!has('comet',day))addMark('comet',day);
+  if(s>0&&s%7===0&&!has('cluster',day))addMark('cluster',day);
+  if(s>0&&s%30===0&&!has('quasar',day))addMark('quasar',day);
+}
+function addStar(m,at,k){const st={id:S.nextId++,m,at,task:S.task.slice(0,80),k:k||clsFor(m).k};S.stars.push(st);S.cur=st.id;checkMarks(st);return st}
+function extendStar(m){const st=curStar();if(!st)return;const old=st.k;st.m+=m;st.k=clsFor(st.m).k;if(st.k!==old)toast(`Your star grew: ${clsByK(st.k).name}`);checkMarks(st)}
+function flash(){const f=$('#flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go')}
+
+/* timer actions */
+const setMin=m=>{m=Math.max(1,Math.min(180,m));if(S.mode==='focus')S.lastFocus=m;else S.lastBreak=m;S.left=S.total=m*MIN;save();renderCtrls()};
+function toIdle(mode){exitZen();S.mode=mode;S.status='idle';S.fired={};S.ext=0;S.pausedAt=0;S.awayAt=0;S.acc=0;S.final=0;S.left=S.total=(mode==='focus'?S.lastFocus:S.lastBreak)*MIN;wake(false);save();renderAll()}
+function start(){audioInit();const now=Date.now();S.fired={};S.ext=0;S.status='run';S.awayAt=0;S.seen=now;S.began=now;
+  if(isWatch()){S.acc=0;S.startAt=now}else{S.total=S.left;S.endAt=now+S.left}
+  play('start');wake(true);save();renderAll()}
+function pause(){const now=Date.now();if(isWatch())S.acc=elapsed();else S.left=Math.max(0,S.endAt-now);S.status='pause';S.pausedAt=now;wake(false);save();renderCtrls()}
+function resume(){audioInit();const now=Date.now();if(isWatch())S.startAt=now;else S.endAt=now+S.left;S.status='run';S.pausedAt=0;S.seen=now;play('tap');wake(true);save();renderCtrls()}
+function finish(at){
+  S.status='over';S.overAt=Date.now();S.fired.half=S.fired.warn=1;
+  if(S.mode==='focus'){if(S.ext)extendStar(Math.round(S.total/MIN));else addStar(Math.round(S.total/MIN),at||Date.now());S.ext=0;play('ignite');flash()}
+  else{S.ext=0;play('brk')}
+  wake(false);save();renderAll();
+}
+function done(){
+  const e=elapsed(),m=Math.floor(e/MIN);
+  if(S.mode!=='focus'){toIdle('focus');return}
+  if(m<5){toIdle('focus');toast('Under 5 minutes: not enough matter for a star.');return}
+  S.acc=e;S.final=e;S.status='over';S.overAt=Date.now();addStar(m,Date.now());play('ignite');flash();wake(false);save();renderAll();
+}
+const usedMs=()=>isWatch()?elapsed():S.total-(S.status==='run'?S.endAt-Date.now():S.left);
+function lose(ms,why){
+  if(S.ext){toIdle('focus');toast('The extra matter drifted off. Your star is safe.');return}
+  S.lost.push({at:Date.now(),m:Math.max(0,Math.floor(usedMs()/MIN))});if(S.lost.length>300)S.lost.shift();
+  S.lostP=progress();S.status='lost';S.lostAt=Date.now();S.pausedAt=0;S.awayAt=0;S.acc=0;
+  S.lostMsg=why==='pause'?'The pause went past 3 minutes. The gathered matter drifted off.':`You were away ${fmt(ms)}. The gathered matter drifted off.`;
+  play('lost');wake(false);save();renderAll();
+}
+function add5(){audioInit();
+  if(S.status==='over'){S.ext=1;S.total=5*MIN;S.endAt=Date.now()+5*MIN;S.fired={half:1,warn:1};S.status='run';S.seen=Date.now();wake(true)}
+  else if(S.status==='run'){S.endAt+=5*MIN;S.total+=5*MIN;S.fired.warn=0}
+  else if(S.status==='pause'){S.left+=5*MIN;S.total+=5*MIN;S.fired.warn=0}
+  play('tap');toast(S.mode==='focus'?'+5 minutes of matter':'+5 minutes');save();renderAll()}
+function stop(){
+  if(isWatch()&&S.status!=='over'){done();return}
+  if(S.status==='over'){toIdle(S.mode);return}
+  if(S.mode==='focus'&&!S.ext){const m=Math.floor(usedMs()/MIN);
+    if(m>=5){addStar(m,Date.now(),'BD');toast('A brown dwarf joins your galaxy')}}
+  toIdle(S.mode);
+}
+function checkAway(){
+  if(S.mode!=='focus'||!(S.status==='run'||S.status==='pause')){S.awayAt=0;return}
+  const now=Date.now();let from=S.awayAt||S.seen||now;
+  if(S.status==='pause'&&S.pausedAt)from=Math.min(from,S.pausedAt);
+  const gap=now-from;
+  if(gap>=GRACE){
+    if(!isWatch()&&S.status==='run'&&S.endAt<=now&&S.endAt-from<GRACE){S.awayAt=0;finish(S.endAt);return}
+    if(S.status==='pause'&&S.pausedAt&&S.pausedAt<=from){lose(gap,'pause');return}
+    lose(gap);return;
+  }
+  if(S.awayAt&&gap>15000&&S.status==='run')toast(`Away ${fmt(gap)}. The cloud held.`);
+  S.awayAt=0;S.seen=now;save();
+}
+function goAway(){if(S.mode==='focus'&&(S.status==='run'||S.status==='pause')&&!S.awayAt){S.awayAt=Date.now();save()}}
+let hb=0;
+function tick(){
+  if(document.hidden)return;
+  const now=Date.now(),st=S.status;
+  if(S.awayAt&&S.mode==='focus'&&now-S.awayAt>=GRACE){checkAway();return}
+  if((st==='run'||st==='pause')&&!S.awayAt){S.seen=now;if(++hb%20===0)save()}
+  if(st==='pause'&&S.mode==='focus'&&now-S.pausedAt>=GRACE){lose(now-S.pausedAt,'pause');return}
+  if(st==='run'){
+    if(isWatch()){
+      const e=elapsed();if(e>=12*60*MIN){done();return}
+      if(S.mode==='focus'&&S.cfg.half){const lap=Math.floor(e/(30*MIN));if(lap>(S.fired.lap||0)){S.fired.lap=lap;play('half');save()}}
+    }else{
+      const rem=S.endAt-now;
+      if(rem<=0){finish(S.endAt);return}
+      if(S.mode==='focus'&&!S.ext){
+        if(S.cfg.half&&S.total>=10*MIN&&!S.fired.half&&rem<=S.total/2){S.fired.half=1;play('half');save()}
+        if(S.cfg.warn&&S.total>10*MIN&&!S.fired.warn&&rem<=5*MIN){S.fired.warn=1;play('warn');save()}
+      }
+    }
+  }
+  renderTime();
+}
+
+/* zen mode */
+let zen=false;
+const zenEl=$('#zen');
+function enterZen(){if(zen||!['run','pause','over','lost'].includes(S.status))return;zen=true;$('#toast').hidden=true;zenEl.hidden=false;zenEl.appendChild(FG.cv)}
+function exitZen(){if(!zen)return;zen=false;$('.forge').appendChild(FG.cv);zenEl.hidden=true}
+FG.cv.addEventListener('click',e=>{e.stopPropagation();if(zen)exitZen();else enterZen()});
+zenEl.addEventListener('click',exitZen);
+$('#zenBtn').addEventListener('click',enterZen);
+
+/* sync: a private GitHub gist holds the galaxy */
+const GH='https://api.github.com';
+const netMsg=e=>e instanceof TypeError?'Could not reach GitHub. Sync needs the installed app (GitHub Pages) and a connection. It does not work in the Claude preview.':e.message;
+async function gh(path,opt){
+  const r=await fetch(GH+path,Object.assign({},opt||{},{headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','Content-Type':'application/json'}}));
+  if(!r.ok)throw new Error(r.status===401?'GitHub refused the token. Check it and log in again.':r.status===404?'The sync gist was not found. Log out and log in again.':'GitHub error '+r.status+'.');
+  return r.status===204?null:r.json();
+}
+const payload=()=>JSON.stringify({app:'kairos',dataAt:S.dataAt||0,data:dataOf()});
+function queuePush(){if(!SY.token||!SY.gist)return;clearTimeout(pushT);pushT=setTimeout(()=>push(false),4000)}
+async function push(keep){
+  if(!SY.token||!SY.gist)return;clearTimeout(pushT);pushT=0;
+  try{await gh('/gists/'+SY.gist,{method:'PATCH',keepalive:!!keep,body:JSON.stringify({files:{'kairos.json':{content:payload()}}})});SY.at=Date.now();SY.err=''}
+  catch(e){SY.err=netMsg(e)}
+  saveSY();renderSync();
+}
+function applyData(d){
+  for(const k of FIELDS)if(d[k]!==undefined)S[k]=d[k];
+  lastData=JSON.stringify(dataOf());posCache.clear();store();
+  if(document.activeElement!==$('#task'))$('#task').value=S.task||'';
+  renderSteps();renderPark();renderAll();
+}
+function mergeData(a,b){
+  const out=Object.assign({},a,b);
+  const link=d=>(d.marks||[]).map(m=>{if(m.type==='pulsar'&&m.star&&!m.starAt){const s=(d.stars||[]).find(x=>x.id===m.star);if(s)return Object.assign({},m,{starAt:s.at})}return m});
+  const byAt=new Map();for(const s of [...(b.stars||[]),...(a.stars||[])])if(!byAt.has(s.at))byAt.set(s.at,s);
+  const stars=[...byAt.values()].sort((x,y)=>x.at-y.at).map((s,i)=>Object.assign({},s,{id:i+1}));
+  const idAt=new Map(stars.map(s=>[s.at,s.id]));
+  const mk=new Map();for(const m of [...link(b),...link(a)]){const k=m.type==='pulsar'?'p'+m.starAt:m.type+'|'+m.day;if(!mk.has(k))mk.set(k,m)}
+  let nid=stars.length+1;
+  const marks=[...mk.values()].sort((x,y)=>x.at-y.at).map(m=>Object.assign({},m,{id:nid++},m.starAt&&idAt.has(m.starAt)?{star:idAt.get(m.starAt)}:{}));
+  const uni=(x,y)=>{const mp=new Map();for(const i of [...(y||[]),...(x||[])])if(!mp.has(i.at))mp.set(i.at,i);return [...mp.values()].sort((p,q)=>p.at-q.at)};
+  Object.assign(out,{stars,marks,nextId:nid,lost:uni(a.lost,b.lost),park:uni(a.park,b.park).reverse(),gname:b.gname||a.gname});
+  return out;
+}
+let pulling=false;
+async function pull(merge){
+  if(!SY.token||!SY.gist||pulling)return;pulling=true;let after=null;
+  try{
+    const g=await gh('/gists/'+SY.gist),f=g.files&&g.files['kairos.json'];
+    let r=null;if(f){let txt=f.content;if(f.truncated)txt=await(await fetch(f.raw_url)).text();try{r=JSON.parse(txt)}catch(e){r=null}}
+    if(r&&r.data){
+      if(merge){applyData(mergeData(dataOf(),r.data));S.dataAt=Date.now();store();after='push';toast('Joined your synced galaxy')}
+      else if((r.dataAt||0)>(S.dataAt||0)){applyData(r.data);S.dataAt=r.dataAt;store()}
+      else if((S.dataAt||0)>(r.dataAt||0))after='push';
+    }else after='push';
+    SY.at=Date.now();SY.err='';
+  }catch(e){SY.err=netMsg(e)}
+  pulling=false;saveSY();renderSync();
+  if(after)await push(false);
+}
+async function login(token){
+  SY.token=token.trim();SY.err='';if(!SY.token)return;
+  toast('Connecting to GitHub');
+  try{
+    const list=await gh('/gists?per_page=100'),g=list.find(x=>x.description==='kairos-sync'&&x.files&&x.files['kairos.json']);
+    if(g){SY.gist=g.id;saveSY();await pull(true)}
+    else{if(!S.dataAt)S.dataAt=Date.now();store();
+      const c=await gh('/gists',{method:'POST',body:JSON.stringify({description:'kairos-sync',public:false,files:{'kairos.json':{content:payload()}}})});
+      SY.gist=c.id;SY.at=Date.now();saveSY();toast('Galaxy saved. Log in on your other device with the same token.')}
+  }catch(e){SY.err=netMsg(e);SY.token='';SY.gist='';saveSY()}
+  renderSync();
+}
+function renderSync(){
+  const b=$('#syncBox');if(!b)return;
+  const err=SY.err?`<p class="hint" style="color:var(--red)">${esc(SY.err)}</p>`:'';
+  if(SY.token&&SY.gist)b.innerHTML=`<p class="hint">On. This galaxy syncs through a private gist on your GitHub account. Last sync: <b>${SY.at?esc(clock(SY.at)):'not yet'}</b>.</p>${err}<div class="row"><button class="btn" data-sync="now">Sync now</button><button class="btn" data-sync="out">Log out</button></div>`;
+  else b.innerHTML=`<p class="hint">Use one galaxy on your phone and your Mac. Make a GitHub token with only the <b>gist</b> permission, then paste it here on each device. <a href="https://github.com/settings/tokens/new?scopes=gist&description=Kairos%20sync" style="color:var(--gold)">Make a token</a></p>${err}<form id="syncForm" class="row"><input id="syncTok" type="password" autocomplete="off" placeholder="ghp_..." aria-label="GitHub token"><button class="btn big">Log in</button></form>`;
+}
+$('#syncBox').addEventListener('click',e=>{const b=e.target.closest('[data-sync]');if(!b)return;
+  if(b.dataset.sync==='now'){toast('Syncing');pull(false)}else{SY={token:'',gist:'',at:0,err:''};saveSY();renderSync();toast('Logged out. Data on this device stays.')}});
+$('#syncBox').addEventListener('submit',e=>{e.preventDefault();const v=$('#syncTok').value;$('#syncTok').blur();login(v)});
+
+/* events */
+function mainAct(){const st=S.status;
+  if(st==='idle')start();else if(st==='run')pause();else if(st==='pause')resume();
+  else if(st==='lost')toIdle('focus');else toIdle(S.mode==='focus'?'break':'focus')}
+$('#main').addEventListener('click',mainAct);
+let armT=0;
+$('#sec1').addEventListener('click',()=>{
+  if(S.status==='over'){toIdle('focus');return}
+  if(!armed){armed=1;renderCtrls();clearTimeout(armT);armT=setTimeout(()=>{armed=0;renderCtrls()},3000);return}
+  armed=0;clearTimeout(armT);stop();
+});
+$('#sec2').addEventListener('click',()=>{if(isWatch())done();else add5()});
+$('#kindSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||S.status!=='idle')return;S.kind=b.dataset.kind;save();renderCtrls()});
+$('#just5').addEventListener('click',()=>{setMin(5);start()});
+$('#modeTag').addEventListener('click',()=>{if(S.status==='run'||S.status==='pause'){toast('Stop the timer first');return}toIdle(S.mode==='focus'?'break':'focus')});
+$('#presets').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.m)setMin(+b.dataset.m);else setMin(Math.round(S.left/MIN)+(+b.dataset.adj))});
+$('#task').value=S.task;
+$('#task').addEventListener('input',e=>{S.task=e.target.value;save()});
+$('#addStep').addEventListener('click',()=>{S.steps.push({t:'',d:false});renderSteps();save();const ins=$$('#steps input');ins[ins.length-1].focus()});
+$('#steps').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const i=+b.dataset.i;
+  if(b.classList.contains('box')){S.steps[i].d=!S.steps[i].d;if(S.steps[i].d)play('tap')}else S.steps.splice(i,1);save();renderSteps()});
+$('#steps').addEventListener('input',e=>{const i=+e.target.dataset.i;if(S.steps[i]){S.steps[i].t=e.target.value;save()}});
+document.addEventListener('keydown',e=>{
+  const typing=e.target.matches('input');
+  if(e.key==='Enter'&&typing&&!e.target.closest('form'))e.target.blur();
+  if(e.key==='Escape'){exitZen();$('#sheet').hidden=true;if(cur==='park'||cur==='set')show(wide()?'focus':cur)}
+  if(e.code==='Space'&&!typing&&!e.target.matches('button')){e.preventDefault();mainAct()}
+});
+const park=t=>{t=t.trim();if(!t)return false;S.park.unshift({t:t.slice(0,140),d:false,at:Date.now()});save();renderPark();return true};
+$('#parkForm').addEventListener('submit',e=>{e.preventDefault();if(park($('#parkIn').value)){$('#parkIn').value='';toast('Parked')}});
+$('#parkList').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const i=+b.dataset.i;
+  if(b.classList.contains('box'))S.park[i].d=!S.park[i].d;else S.park.splice(i,1);save();renderPark()});
+$('#clearDone').addEventListener('click',()=>{S.park=S.park.filter(p=>!p.d);save();renderPark()});
+const sheet=$('#sheet');
+$('#quickPark').addEventListener('click',()=>{sheet.hidden=false;$('#sheetIn').value='';$('#sheetIn').focus()});
+$('#sheetX').addEventListener('click',()=>{sheet.hidden=true});
+sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.hidden=true});
+$('#sheetForm').addEventListener('submit',e=>{e.preventDefault();if(park($('#sheetIn').value))toast('Parked. Back to it.');$('#sheetIn').blur();sheet.hidden=true});
+$('#gname').addEventListener('input',e=>{S.gname=e.target.value;save()});
+$('#galaxy').addEventListener('click',e=>{
+  const cv=e.currentTarget,r=cv.getBoundingClientRect(),ax=(e.clientX-r.left)*GX.w/r.width,ay=(e.clientY-r.top)*GX.h/r.height;
+  let best=null,bd=8;for(const hh of hits){const d=Math.hypot(hh.x-ax,hh.y-ay);if(d<bd){bd=d;best=hh}}
+  const card=$('#gcard');if(!best){card.hidden=true;return}
+  if(best.s){const s=best.s,c=clsByK(s.k);card.innerHTML=`<b>${esc(s.task||'Untitled block')}</b><small>${esc(c.name)}</small><small>${s.m} min · ${esc(new Date(s.at).toLocaleDateString([],{month:'short',day:'numeric'}))}, ${esc(clock(s.at))}</small>`}
+  else{const m=best.m;card.innerHTML=`<b>${esc(MS[m.type].name)}</b><small>${esc(MS[m.type].how)}</small><small>Earned ${esc(new Date(m.at).toLocaleDateString([],{month:'short',day:'numeric'}))}</small>`}
+  card.hidden=false;const wr=$('.gwrap').getBoundingClientRect(),x=best.x*r.width/GX.w+r.left-wr.left,y=best.y*r.height/GX.h+r.top-wr.top;
+  card.style.left=Math.max(4,Math.min(wr.width-240,x+12))+'px';card.style.top=Math.max(4,Math.min(wr.height-90,y+12))+'px';
+});
+$('#toggles').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b)return;const k=b.dataset.k;S.cfg[k]=!S.cfg[k];
+  if(k==='loud')audioInit();if(k==='wake')wake(S.status==='run');save();renderSet()});
+$('#dialSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cfg.dial=b.dataset.dial;save();renderSet()});
+let wipeArmed=false;
+$('#wipe').addEventListener('click',()=>{
+  if(!wipeArmed){wipeArmed=true;$('#wipe').textContent='Tap again to erase all data on this device';setTimeout(()=>{wipeArmed=false;$('#wipe').textContent='Erase all data'},3000);return}
+  SY={token:'',gist:'',at:0,err:''};saveSY();S=clone(DEF);posCache.clear();lastData=JSON.stringify(dataOf());store();$('#task').value='';renderSteps();renderPark();renderSet();renderAll();toast('All data erased');wipeArmed=false;$('#wipe').textContent='Erase all data';
+});
+
+/* views */
+const wide=()=>matchMedia('(min-width: 900px)').matches;
+let isWide=wide();window.addEventListener('resize',()=>{isWide=wide()});
+let cur='focus';
+function show(v){
+  if(wide()&&(v==='park'||v==='set')&&cur===v)v='focus';
+  cur=v;
+  $$('nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
+  $$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
+  if(v==='galaxy')renderGalaxy();if(v==='park')renderPark();if(v==='set')renderSet();
+  $('#gcard').hidden=true;if(!wide())window.scrollTo(0,0);
+}
+document.querySelector('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)show(b.dataset.v)});
+$$('[data-close]').forEach(b=>b.addEventListener('click',()=>show('focus')));
+
+/* away tracking */
+document.addEventListener('visibilitychange',()=>{if(document.hidden){goAway();if(pushT)push(true)}else{checkAway();tick();if(S.status==='run')wake(true);if(SY.token&&Date.now()-SY.at>15000)pull(false)}});
+window.addEventListener('pagehide',()=>{goAway();if(pushT)push(true)});
+window.addEventListener('blur',()=>{if(S.cfg.strict)goAway()});
+window.addEventListener('focus',()=>{if(S.awayAt&&!document.hidden)checkAway()});
+
+/* loop */
+const vis=el=>el.offsetParent!==null;
+let fc=0;
+function frame(ms){
+  const t=ms/1000,dt=Math.min(.1,t-(frame.l||t));frame.l=t;
+  phase+=dt*(S.status==='pause'?.15:1)*(reduced?.35:1);
+  if(++fc%2===0){if(zen||vis(FG.cv))drawForge(t);if(!zen&&vis(GX.cv))drawGalaxy(t)}
+  requestAnimationFrame(frame);
+}
+checkAway();
+renderSteps();renderPark();renderSet();renderAll();
+if(S.status==='run')wake(true);
+if(SY.token&&SY.gist)pull(false);
+setInterval(tick,250);
+requestAnimationFrame(frame);
+try{if('serviceWorker' in navigator&&location.protocol==='https:'&&!location.hostname.endsWith('claude.ai')&&window.self===window.top)navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+}
+</script>
+</body>
+</html>
