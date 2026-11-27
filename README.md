@@ -1,12 +1,12 @@
 # Kairos
 
-A cosmic pixel focus timer and task planner made for ADHD brains. Each focus block pulls a cloud of matter into a star. When the block ends, the star ignites and joins your galaxy. Kairos runs as a home-screen web app on iPhone and in any browser on a computer.
+A focus timer and task planner made for ADHD brains. (Or, at least, _my_ ADHD brain.) Each focus block pulls a cloud of matter into a star. When the block ends, the star ignites and joins your galaxy. The [Ephemeris](github.com/TheScholium/ephemeris) task setup is included as well: natural language task entry, a do date and a due date, recurring tasks, and even Google Calendar integration.
+
+Kairos currently runs as a home-screen web app on iPhone and in any browser on a computer. Using a quick token setup, galaxies can be linked across devices.
 
 **Open the app:** https://thescholium.github.io/Kairos/
 
 ![Kairos demo: a 25-minute block forms a star and ignites, then zen mode](docs/kairos-demo.gif)
-
-[Watch the full-quality demo video (MP4, 25 s)](docs/kairos-demo.mp4). The video uses a fast clock: each 25-minute block takes a few seconds. All stars and tasks in the video and screenshots are sample data.
 
 ## Screenshots
 
@@ -18,7 +18,9 @@ A cosmic pixel focus timer and task planner made for ADHD brains. Each focus blo
 |:---:|:---:|
 | ![Zen mode: only the star and its ring, no numbers](docs/phone-zen.png) | ![Stopwatch: counts up, star type grows with time](docs/phone-stopwatch.png) |
 
-**3-month heatmap** (sample data)
+There is real evidence ([Cook & Maghami-Sharif 2026](https://www.ncfr.org/system/files/2026-06/Math%20Anxiety_Brief%202026%20%281%29.pdf), [Thomas & Karuppali 2026](https://pmc.ncbi.nlm.nih.gov/articles/PMC8733412/) to suggest that visual timers can help with time blindness and task anxiety in individuals with ADHD. Kairos is a more unique, creative take on the typical kitchen timer.
+
+**3-month heatmap**
 
 ![Heatmap of focus minutes per day for the last 3 months](docs/phone-heatmap.png)
 
@@ -34,7 +36,7 @@ A cosmic pixel focus timer and task planner made for ADHD brains. Each focus blo
 
 ## What it does
 
-- **Visual timer for time blindness.** A ring shows the time left, clockwise from the top, on a 60-minute face. The text shows the clock time when the block ends.
+- **Visual timer for time blindness.** A ring shows the time left, clockwise from the top, on a 60-minute face. The text also shows the clock time when the block ends.
 - **Protostar forge.** Gas spirals into the core. The core grows and gets hotter as the block goes on. At the end, the star ignites.
 - **Stopwatch.** Counts up with no end. Tap Done to form the star (5 minutes or more). It chimes every 30 minutes.
 - **Zen mode.** After you start, tap the forge. Only the star and its ring stay on the screen. Tap again to leave.
