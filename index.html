@@ -13,7 +13,7 @@
 <title>Kairos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Silkscreen&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&family=EB+Garamond:wght@400;600&family=Pixelify+Sans:wght@400;600&family=Silkscreen&display=swap" rel="stylesheet">
 <style>
 /* VOICE: quiet, vast, a little playful; low stimulus while you work.
    IDEA: a pixel observatory. Each focus block is a protostar; your record is a galaxy.
@@ -22,9 +22,18 @@
    LAYOUT: phone = one column + bottom keys; computer = forge panel left, galaxy fills the right. */
 :root{color-scheme:dark;--bg:#07060c;--card:rgba(255,255,255,.035);--line:rgba(241,234,216,.11);--ink:#f1ead8;--dim:#a39cb3;--faint:#615a74;
 --gold:#ffcf6b;--red:#ff6b4a;--mint:#8fe3c8;--acc:var(--gold);
---px:'Silkscreen',ui-monospace,monospace;--tx:'Pixelify Sans',system-ui,sans-serif;
+--px:'Atkinson Hyperlegible Next',system-ui,-apple-system,sans-serif;--tx:'Atkinson Hyperlegible Next',system-ui,-apple-system,sans-serif;--num:'Atkinson Hyperlegible Mono',ui-monospace,monospace;
 --notch:polygon(3px 0,calc(100% - 3px) 0,calc(100% - 3px) 3px,100% 3px,100% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px),0 3px,3px 3px)}
 body[data-mode=break]{--acc:var(--mint)}
+/* typefaces: Readable (default), Book, Pixel */
+body[data-font=book]{--px:'EB Garamond',Garamond,'Times New Roman',serif;--tx:'EB Garamond',Garamond,'Times New Roman',serif;--num:'EB Garamond',Garamond,serif}
+body[data-font=pixel]{--px:'Silkscreen',ui-monospace,monospace;--tx:'Pixelify Sans',system-ui,sans-serif;--num:'Silkscreen',ui-monospace,monospace}
+body:not([data-font=pixel]) :is(.lbl,.tag,.btn,.chip,.link,.sec,.mini,.gchip,.chip2,.dayh,.count,nav button,.tabs button,h2,h3,.stat b,.leg em,.evrow b,.time){font-weight:600}
+body:not([data-font=pixel]) :is(.lbl,.link,.sec,.dayh,.tabs button,.chip2,.mini){font-size:14px}
+body:not([data-font=pixel]) nav button{font-size:13px}
+body:not([data-font=pixel]) h3{font-size:15px}
+body[data-font=book]{font-size:18px}
+body[data-font=book] .time{font-variant-numeric:lining-nums tabular-nums}
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 html,body{height:100%}
@@ -38,7 +47,7 @@ canvas.art{image-rendering:crisp-edges;image-rendering:pixelated;display:block}
 @keyframes flash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
 #app{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) calc(76px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
 .top{display:flex;align-items:center;gap:8px;padding:10px 0 4px}
-.brand{font:16px var(--px);flex:1}
+.brand{font:16px 'Silkscreen',ui-monospace,monospace;flex:1}
 .tag{font:13px var(--px);min-height:44px;padding:0 10px;border:0;background:none;color:var(--acc);display:flex;align-items:center;gap:8px}
 .tag::before{content:'';width:8px;height:8px;background:var(--acc);box-shadow:0 0 10px var(--acc)}
 .count{font:14px var(--px);display:flex;align-items:center;gap:6px;color:var(--gold)}
@@ -59,7 +68,7 @@ input::placeholder{color:#5c5570}
 .forge{display:grid;place-items:center;margin-top:2px}
 .forge canvas{width:min(84vw,330px,40dvh);aspect-ratio:1}
 .readout{text-align:center}
-.time{font:clamp(50px,15vw,74px)/1 var(--px);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(255,207,107,.18)}
+.time{font:clamp(50px,15vw,74px)/1 var(--num);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(255,207,107,.18)}
 .time.over{color:var(--gold)}.time.lost{color:var(--faint)}
 .ends{font:15px/1.4 var(--tx);color:var(--dim);margin:8px auto 0;min-height:42px;max-width:34ch}
 .ends b{color:var(--ink);font-weight:600}
@@ -116,6 +125,7 @@ h3{font:14px var(--px);color:var(--dim);margin:22px 0 8px;font-weight:400}
 [aria-checked=true] .knob::after{left:25px;background:var(--bg)}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 4px}
 .seg .chip{width:100%;font-size:13px}
+.seg3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .note{background:var(--card);padding:14px;font-size:15px;color:var(--dim);margin-top:16px;clip-path:var(--notch)}
 .note b{color:var(--ink)}
 nav{position:fixed;left:0;right:0;bottom:0;z-index:4;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--bg);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
@@ -218,7 +228,7 @@ code{overflow-wrap:anywhere}
 @media(prefers-reduced-motion:reduce){#flash.go{animation-duration:2.4s}.btn:active{transform:none}}
 </style>
 </head>
-<body data-mode="focus">
+<body data-mode="focus" data-font="readable">
 <div id="flash"></div>
 <div id="app">
 <div class="left">
@@ -310,6 +320,13 @@ code{overflow-wrap:anywhere}
   <h2>Settings</h2>
   <div class="note" style="margin:6px 0 8px"><b>The 3-minute rule.</b> During a focus block, if you leave the app (close it, change tabs, lock the phone) for 3 minutes or more, the matter drifts off and the star does not form. A pause also holds for only 3 minutes. Breaks have no limit. If you stop a timer block yourself after 5 minutes or more, you get a brown dwarf. A stopwatch block needs 5 minutes or more to form a star.</div>
   <div id="toggles"></div>
+  <span class="lbl" style="margin-top:16px">Typeface</span>
+  <div class="seg seg3" id="fontSeg">
+    <button class="chip" data-font="readable" style="font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif">Readable</button>
+    <button class="chip" data-font="book" style="font-family:'EB Garamond',Garamond,serif">Book</button>
+    <button class="chip" data-font="pixel" style="font-family:'Silkscreen',monospace;font-weight:400">Pixel</button>
+  </div>
+  <p class="hint">Readable uses Atkinson Hyperlegible, made by the Braille Institute so that each letter is easy to tell apart. Book is Garamond, like Istari. Pixel is the full retro look.</p>
   <span class="lbl" style="margin-top:16px">Timer ring</span>
   <div class="seg" id="dialSeg">
     <button class="chip" data-dial="60">60-minute ring</button>
@@ -386,7 +403,7 @@ const MS={
 /* state */
 const DEF={v:2,mode:'focus',status:'idle',total:25*MIN,left:25*MIN,endAt:0,pausedAt:0,awayAt:0,seen:0,overAt:0,lostAt:0,lostMsg:'',ext:0,cur:0,
   kind:'timer',acc:0,startAt:0,began:0,final:0,dataAt:0,lastFocus:25,lastBreak:5,fired:{},task:'',taskId:null,steps:[],park:[],tasks:[],gcfg:{clientId:'',show:null,target:'primary',auto:true},stars:[],marks:[],lost:[],nextId:1,gname:'',
-  cfg:{half:true,warn:true,sound:true,loud:false,wake:true,strict:false,dial:'60'}};
+  cfg:{half:true,warn:true,sound:true,loud:false,wake:true,strict:false,dial:'60',font:'readable'}};
 function load(){
   try{
     const raw=localStorage.getItem(KEY);
@@ -406,6 +423,7 @@ function load(){
   }catch(e){return clone(DEF)}
 }
 let S=load();
+const applyFont=()=>{document.body.dataset.font=['readable','book','pixel'].includes(S.cfg.font)?S.cfg.font:'readable'};applyFont();
 if(!Array.isArray(S.tasks))S.tasks=[];
 if(!S.gcfg)S.gcfg={clientId:'',show:null,target:'primary',auto:true};
 if(S.park&&S.park.length){for(const p of S.park){const id='t'+(p.at||Date.now()).toString(36)+Math.random().toString(36).slice(2,6),iso=new Date(p.at||Date.now()).toISOString();
@@ -707,6 +725,7 @@ const TOG=[['half','Halfway chime','Two blips at the middle of a focus block.'],
 function renderSet(){
   $('#toggles').innerHTML=TOG.map(([k,t,s])=>`<button class="sw" role="switch" aria-checked="${!!S.cfg[k]}" data-k="${k}"><div><b>${t}</b><small>${s}</small></div><span class="knob"></span></button>`).join('');
   $$('#dialSeg .chip').forEach(b=>b.classList.toggle('on',b.dataset.dial===S.cfg.dial));
+  $$('#fontSeg .chip').forEach(b=>b.classList.toggle('on',b.dataset.font===(S.cfg.font||'readable')));
   const standalone=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
   $('#installNote b').textContent=standalone?'Installed.':'Install:';
   renderSync();renderGBox();
@@ -941,6 +960,7 @@ $('#galaxy').addEventListener('click',e=>{
 });
 $('#toggles').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b)return;const k=b.dataset.k;S.cfg[k]=!S.cfg[k];
   if(k==='loud')audioInit();if(k==='wake')wake(S.status==='run');save();renderSet()});
+$('#fontSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cfg.font=b.dataset.font;applyFont();save();renderSet()});
 $('#dialSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cfg.dial=b.dataset.dial;save();renderSet()});
 let wipeArmed=false;
 $('#wipe').addEventListener('click',()=>{
