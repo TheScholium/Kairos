@@ -115,7 +115,7 @@ After that, each device pulls when you open it and pushes about 4 seconds after 
 
 ## Update the app
 
-Edit `index.html`, then change `V` in `sw.js` (for example to `kairos-v6`). Push. Close and open the app two times to load the new version.
+Edit `index.html`, then change `V` in `sw.js` (for example from `kairos-v10` to `kairos-v11`). Push. Close and open the app two times to load the new version.
 
 ## Limits
 
