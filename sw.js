@@ -1,6 +1,6 @@
 // Offline cache for Kairos. Change V to force an update after you edit index.html.
-const V = 'kairos-v4';
-const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
+const V = 'kairos-v5';
+const SHELL = ['./', 'index.html', 'core.js', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)));
