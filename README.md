@@ -18,9 +18,9 @@ A cosmic pixel focus timer and task planner made for ADHD brains. Each focus blo
 |:---:|:---:|
 | ![Zen mode: only the star and its ring, no numbers](docs/phone-zen.png) | ![Stopwatch: counts up, star type grows with time](docs/phone-stopwatch.png) |
 
-**Year heatmap** (sample data)
+**3-month heatmap** (sample data)
 
-![Year heatmap of focus minutes per day](docs/phone-heatmap.png)
+![Heatmap of focus minutes per day for the last 3 months](docs/phone-heatmap.png)
 
 | Tasks: Today | Tasks: Week | Task |
 |:---:|:---:|:---:|
@@ -40,7 +40,7 @@ A cosmic pixel focus timer and task planner made for ADHD brains. Each focus blo
 - **Zen mode.** After you start, tap the forge. Only the star and its ring stay on the screen. Tap again to leave.
 - **The 3-minute rule.** During a focus block, if you leave the app (close it, change tabs, lock the phone) for 3 minutes or more, the matter drifts off and the star does not form. A pause also holds for only 3 minutes. Breaks have no limit.
 - **Star types come from block length:** M red dwarf (under 10 min), K (10+), G like the Sun (25+), F (45+), A (60+), B blue giant (90+), O blue supergiant (150+). If you stop a timer block yourself after 5 minutes or more, you get a brown dwarf.
-- **Year heatmap** on the Galaxy tab, like the one on a GitHub profile: one square per day for the last 53 weeks, brighter for more focus minutes. It shows total hours, active days, and your longest and current streak. Tap a day to see its time and stars.
+- **3-month heatmap** on the Galaxy tab, like the one on a GitHub profile: one square per day for the last 13 weeks, brighter for more focus minutes. It shows total hours, active days, and your longest and current streak. Tap a day to see its time and stars.
 - **Landmarks:** comet (3-day streak), star cluster (each 7 days of streak), quasar (each 30 days), nebula (4 h in one day), supernova remnant (8 h), black hole (12 h), pulsar (one block of 90 min or more).
 - **ADHD helpers:** one "Now doing" task with up to five tiny steps, a "Do 5 minutes" start, a parking lot for stray thoughts, halfway and 5-minute chimes, and a screen wake lock.
 - **Tasks with two dates.** Each task can have a **do date** (the day, and if you want the time, you plan to work on it) and a **due date** (the deadline). The task engine is the core of [Ephemeris](https://github.com/TheScholium/ephemeris), so quick add, repeats and the Today logic work the same way.

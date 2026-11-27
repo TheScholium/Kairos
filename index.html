@@ -133,12 +133,13 @@ nav button.on{color:var(--ink)}nav button.on::before{background:var(--acc);box-s
 #forge{cursor:pointer}
 .kind{max-width:300px;margin:12px auto 0}
 .sync .row{margin-top:8px}.sync .btn{flex:1}
-.heatw{margin-top:20px;width:max-content;max-width:100%}
+.heatw{margin-top:20px}
+.hgrid{width:max-content;max-width:100%}
 .hstats{font-size:14px;color:var(--dim);margin:2px 0 10px}.hstats b{color:var(--ink);font-weight:600}
-.hscroll{overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
-.heat{--hc:11px;display:grid;grid-auto-flow:column;grid-template-rows:14px repeat(7,var(--hc));grid-template-columns:30px;grid-auto-columns:var(--hc);gap:3px;width:max-content}
-.heat .hm{font-size:11px;line-height:14px;color:var(--dim);white-space:nowrap;overflow:visible;width:0}
-.heat .hd{font-size:10px;line-height:var(--hc);color:var(--dim);position:sticky;left:0;z-index:1;background:var(--bg);padding-right:4px}
+.hscroll{overflow-x:auto;padding:3px 4px 6px 0;-webkit-overflow-scrolling:touch}
+.heat{--hc:clamp(12px,calc((100vw - 104px) / 13),20px);display:grid;grid-auto-flow:column;grid-template-rows:14px repeat(7,var(--hc));grid-template-columns:30px;grid-auto-columns:var(--hc);gap:3px;width:max-content}
+.heat .hm{font-size:12px;line-height:14px;color:var(--dim);white-space:nowrap;overflow:visible;width:0}
+.heat .hd{font-size:11px;line-height:var(--hc);color:var(--dim);position:sticky;left:0;z-index:1;background:var(--bg);padding-right:4px}
 .heat i,.hleg i{display:block;width:var(--hc,11px);height:var(--hc,11px);background:rgba(255,255,255,.06)}
 .heat i{cursor:pointer}
 .heat i.l1,.hleg i.l1{background:color-mix(in srgb,var(--gold) 26%,#17141f)}
@@ -150,7 +151,7 @@ nav button.on{color:var(--ink)}nav button.on::before{background:var(--acc);box-s
 .heat i.sel{outline:2px solid var(--mint);outline-offset:1px}
 .hleg{display:flex;align-items:center;justify-content:flex-end;gap:3px;font-size:12px;color:var(--dim);margin-top:6px}.hleg span{margin:0 4px}
 .htip{min-height:22px;font-size:14px;color:var(--dim);margin-top:4px}.htip b{color:var(--ink);font-weight:600}
-@media(min-width:900px){.heat{--hc:13px}}
+@media(min-width:900px){.heat{--hc:22px}}
 /* tasks */
 .thead{display:flex;align-items:center;gap:10px}.thead h2{flex:1}
 .gchip{border:0;background:rgba(255,255,255,.06);font:12px var(--px);color:var(--dim);min-height:40px;padding:0 12px;clip-path:var(--notch)}
@@ -264,10 +265,10 @@ code{overflow-wrap:anywhere}
     <div id="gcard" class="gcard" hidden></div>
   </div>
   <div class="heatw">
-    <h3>Focus this year</h3>
+    <h3>Focus, last 3 months</h3>
     <div id="hstats" class="hstats"></div>
-    <div class="hscroll" id="hscroll"><div id="heat" class="heat" role="grid" aria-label="Focus minutes per day for the last year"></div></div>
-    <div class="hleg"><span>Less</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More</span></div>
+    <div class="hgrid"><div class="hscroll" id="hscroll"><div id="heat" class="heat" role="grid" aria-label="Focus minutes per day for the last 3 months"></div></div>
+    <div class="hleg"><span>Less</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More</span></div></div>
     <div id="heatTip" class="htip">Tap a day to see its focus time.</div>
   </div>
   <div class="ginfo">
@@ -666,7 +667,7 @@ function renderHeat(){
   heatBy=new Map();
   for(const s of S.stars){const k=dayKey(s.at),o=heatBy.get(k)||{m:0,n:0};o.m+=s.m;o.n++;heatBy.set(k,o)}
   const end=new Date();end.setHours(12,0,0,0);const tk=dayKey(end);
-  const start=new Date(end);start.setDate(start.getDate()-(7*52+end.getDay()));
+  const start=new Date(end);start.setDate(start.getDate()-(7*12+end.getDay()));
   let h='<span class="hm"></span>'+['','Mon','','Wed','','Fri',''].map(x=>`<span class="hd">${x}</span>`).join('');
   let prevM=-1,yrMin=0,active=0,run=0,best=0;
   for(let d=new Date(start),w=0;d<=end;w++){
@@ -680,7 +681,7 @@ function renderHeat(){
     }
   }
   el.innerHTML=h;
-  $('#hstats').innerHTML=`<b>${esc(fmtHM(yrMin))}</b> of focus on <b>${active}</b> day${active===1?'':'s'}. Longest streak: <b>${best}</b> day${best===1?'':'s'}. Current: <b>${streak()}</b>.`;
+  $('#hstats').innerHTML=`<b>${esc(fmtHM(yrMin))}</b> of focus on <b>${active}</b> day${active===1?'':'s'} in the last 3 months. Longest streak: <b>${best}</b> day${best===1?'':'s'}. Current: <b>${streak()}</b>.`;
   const sc=$('#hscroll');requestAnimationFrame(()=>{sc.scrollLeft=sc.scrollWidth});
 }
 function renderGalaxy(){
